@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Educativo</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Jogo Línguas">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-top: -20px;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+
+
+
+            font-size: 1.4em;
+            display: flex;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            justify-content: space-around;
+            flex-direction: row;
+            align-items: flex-end;
+
+        }
+
+        .stats {
+            font-size: 0.7em;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+        }
+
+        .game-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            flex: 1;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .question-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transition: width 0.3s ease;
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 80px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .word-chip {
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            border: none;
+            font-size: 1em;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .word-chip.letter {
+            padding: 15px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .word-chip:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .word-chip.selected {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            transform: scale(1.1);
+        }
+
+        .answer-area {
+            min-height: 100px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-area.correct {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .answer-area.incorrect {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-check {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(45deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .btn-next {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .questions-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f7fafc;
+        }
+
+        .question-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .question-content {
+            flex: 1;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.05);
+        }
+
+        .file-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            color: #4a5568;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #f0fff4;
+            color: #38a169;
+            border: 2px solid #48bb78;
+        }
+
+        .feedback.incorrect {
+            background: #fff5f5;
+            color: #e53e3e;
+            border: 2px solid #f56565;
+        }
+
+        /* css para botão de fala */
+        .global-controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .global-speech-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .global-speech-btn:hover {
+            background: #45a049;
+        }
+
+        .global-speech-btn.disabled {
+            background: #f44336;
+        }
+
+        .global-speech-btn.disabled:hover {
+            background: #da190b;
+        }
+
+        #autoSpeak {
+            color: red;
+        }
+
+        /*botao repetir pergunta*/
+        .repeat-audio-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+        }
+
+        .repeat-audio-btn:hover {
+            background-color: rgba(76, 175, 80, 0.1);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .repeat-audio-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Opcional: Estilo quando a fala global está desativada */
+        .repeat-audio-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .repeat-audio-btn.disabled:hover {
+            background-color: transparent;
+            transform: none;
+        }
+
+        /*css para barra de pesquisas de perguntas*/
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 35px 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 16px;
+            color: #888;
+            display: none;
+        }
+
+        #searchInput:not(:placeholder-shown)+.clear-btn {
+            display: block;
+        }
+
+        /* personalizar o botão das frases acerto e erro */
+        #toggleContainer {
+            display: none;
+            /* Oculta tudo inicialmente */
+            margin-top: 10px;
+        }
+
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.4em;
+            }
+
+            .nav-buttons {
+                flex-direction: row;
+            }
+
+            .nav-btn {
+                min-width: auto;
+            }
+
+            .game-area {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+            }
+
+            .word-chip {
+                padding: 10px 15px;
+                font-size: 0.8em;
+            }
+
+            .game-buttons {
+                flex-direction: column;
+            }
+
+            .game-btn {
+                min-width: auto;
+            }
+
+            .stats {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .global-speech-btn {
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .form-group label {
+                text-align: center;
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: #4a5568;
+            }
+
+            select {
+                font-size: 16px;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯Linguas <div class="global-controls">
+                    <button class="global-speech-btn" id="globalSpeechBtn" onclick="toggleGlobalSpeech()">
+                        🔊 <span id="speechStatus">Fala Ativada</span>
+                    </button>
+                </div>
+            </h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalQuestions">0</div>
+                    <div class="stat-label">Perguntas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Acertos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Precisão</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showGame()">🎮 Jogar</button>
+            <button class="nav-btn" onclick="showAdmin()">⚙️ Gerenciar</button>
+        </div>
+        <div id="feedback" class="feedback" style="display: none;"></div>
+        <div class="game-area">
+            <!-- Área do Jogo -->
+            <div id="gamePanel">
+                <div class="question-display">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                    <div class="question-text" id="questionText">Clique em "Iniciar Jogo" para começar!</div>
+                    <div class="speech-indicator" id="speechIndicator"
+                        style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+                </div>
+
+                <div class="word-bank" id="wordBank"></div>
+
+                <div class="answer-area" id="answerArea"></div>
+
+                <div class="game-buttons">
+                    <button class="game-btn btn-check" id="checkBtn" onclick="checkAnswer()" disabled>✓
+                        Verificar</button>
+                    <button class="game-btn btn-clear" onclick="clearAnswer()">🗑️ Limpar</button>
+                    <button class="game-btn btn-next" onclick="startGame()">▶️ Iniciar Jogo</button>
+                </div>
+
+
+            </div>
+
+            <!-- Painel Administrativo -->
+            <div id="adminPanel" class="admin-panel">
+                <div class="form-group">
+                    <!-- <label for="questionInput">Pergunta:</label> -->
+                    <label for="questionLanguage">Pergunta, Idioma da Pergunta:</label>
+                    <select id="questionLanguage">
+                        <option value="português">Português</option>
+                        <option value="inglês">Inglês</option>
+                        <option value="espanhol">Espanhol</option>
+                        <option value="francês">Francês</option>
+                        <option value="italiano">Italiano</option>
+                    </select>
+                    <input type="text" id="questionInput" placeholder="Digite a pergunta aqui...">
+                </div>
+
+                <div class="form-group">
+                    <!-- <label for="answerInput">Resposta:</label> -->
+                    <label for="answerLanguage">Resposta, Idioma da Resposta:</label>
+                    <select id="answerLanguage">
+                        <option value="português">Português</option>
+                        <option value="inglês">Inglês</option>
+                        <option value="espanhol">Espanhol</option>
+                        <option value="francês">Francês</option>
+                        <option value="italiano">Italiano</option>
+                    </select>
+                    <input type="text" id="answerInput" placeholder="Digite a resposta aqui...">
+
+                </div>
+                <div class="form-group">
+                    <label for="gameType">Tipo de Jogo:</label>
+                    <select id="gameType" onchange="toggleGameType()">
+                        <option value="words">Palavras</option>
+                        <option value="letters">Letras</option>
+                    </select>
+                </div>
+                <div class="form-group" id="wordsGroup">
+                    <label for="wordsInput">Palavras para escolha (separadas por vírgula):</label>
+                    <textarea id="wordsInput" rows="3" placeholder="palavra1, palavra2, palavra3, ..."></textarea>
+                </div>
+
+                <div class="form-group" id="lettersGroup" style="display: none;">
+                    <label for="lettersInput">Letras extras (opcional - separadas por vírgula):</label>
+                    <textarea id="lettersInput" rows="2" placeholder="a, b, c, x, y, z, ..."></textarea>
+                    <small style="color: #666; margin-top: 5px; display: block;">
+                        Adicione letras extras para aumentar a dificuldade. Sem letras extras, apenas as letras da
+                        resposta aparecerão.</small>
+                </div>
+
+
+                <!-- Div única que envolve todo o conteúdo a ser ocultado -->
+                <div id="toggleContainer">
+                    <div class="form-group">
+                        <label for="successMessage"></label>
+                        <label for="successLanguage">(opcional) Frase de Acerto, Idioma</label>
+                        <select id="successLanguage">
+                            <option value="português">Português</option>
+                            <option value="inglês">Inglês</option>
+                            <option value="espanhol">Espanhol</option>
+                            <option value="francês">Francês</option>
+                            <option value="italiano">Italiano</option>
+                        </select>
+                        <input type="text" id="successMessage" placeholder="Ex: Parabéns! Você acertou!" value="Certo!">
+                    </div>
+
+                    <label>
+                        <input type="checkbox" id="autoSpeak" checked> Falar áudio das frases?
+                    </label>
+
+                    <div class="form-group">
+                        <label for="errorMessage"></label>
+                        <label for="errorLanguage">(opcional) Frase de Erro, Idioma</label>
+                        <select id="errorLanguage">
+                            <option value="português">Português</option>
+                            <option value="inglês">Inglês</option>
+                            <option value="espanhol">Espanhol</option>
+                            <option value="francês">Francês</option>
+                            <option value="italiano">Italiano</option>
+                        </select>
+                        <input type="text" id="errorMessage" placeholder="Ex: Errado, continue tentando!"
+                            value="Errou!">
+                    </div>
+                </div>
+
+
+
+                <div class="game-buttons">
+                    <!-- Botão para expandir/ocultar -->
+                    <button class="game-btn btn-check" id="toggleBtn">Mostrar Outras Opções</button>
+                    <button class="game-btn btn-check" onclick="addQuestion()">➕ Adicionar</button>
+                    <button class="game-btn btn-clear" onclick="clearForm()">🧹 Limpar Campos</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Perguntas Cadastradas:</label>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Buscar perguntas..."
+                            oninput="filterQuestions()" />
+                        <span class="clear-btn" onclick="clearSearch()">✖</span>
+                    </div>
+                    <div class="questions-list" id="questionsList"></div>
+                </div>
+                <div class="file-buttons">
+                    <button class="nav-btn" onclick="document.getElementById('importFile').click()">📁 Importar</button>
+                    <button class="nav-btn" onclick="exportQuestions()">💾 Exportar</button>
+                    <button class="nav-btn" onclick="clearAllData()">🗑️ Limpar Tudo</button>
+                </div>
+
+                <input type="file" id="importFile" class="file-input" accept=".json" onchange="importQuestions(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Editar Pergunta</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <!-- <label for="editQuestion">Pergunta:</label> -->
+                <label for="editQuestionLanguage">Pergunta, Idioma da Pergunta:</label>
+                <select id="editQuestionLanguage">
+                    <option value="português">Português</option>
+                    <option value="inglês">Inglês</option>
+                    <option value="espanhol">Espanhol</option>
+                    <option value="francês">Francês</option>
+                    <option value="italiano">Italiano</option>
+                </select>
+                <input type="text" id="editQuestion">
+            </div>
+
+            <div class="form-group">
+                <!-- <label for="editAnswer">Resposta:</label> -->
+                <label for="editAnswerLanguage">Resposta, Idioma da Resposta:</label>
+                <select id="editAnswerLanguage">
+                    <option value="português">Português</option>
+                    <option value="inglês">Inglês</option>
+                    <option value="espanhol">Espanhol</option>
+                    <option value="francês">Francês</option>
+                    <option value="italiano">Italiano</option>
+                </select>
+                <input type="text" id="editAnswer">
+            </div>
+            <div class="form-group">
+                <label for="editSuccessMessage"></label>
+                <label for="editSuccessLanguage">(opcional)Frase de Acerto, Idioma</label>
+                <select id="editSuccessLanguage">
+                    <option value="português">Português</option>
+                    <option value="inglês">Inglês</option>
+                    <option value="espanhol">Espanhol</option>
+                    <option value="francês">Francês</option>
+                    <option value="italiano">Italiano</option>
+                </select>
+                <input type="text" id="editSuccessMessage" placeholder="Ex: Parabéns! Você acertou!">
+            </div>
+            <label>
+                <input type="checkbox" id="editAutoSpeak"> Falar áudio das frases?
+            </label>
+            <div class="form-group">
+                <label for="editErrorMessage"></label>
+                <label for="editErrorLanguage">(opcional)Frase de Erro, Idioma</label>
+                <select id="editErrorLanguage">
+                    <option value="português">Português</option>
+                    <option value="inglês">Inglês</option>
+                    <option value="espanhol">Espanhol</option>
+                    <option value="francês">Francês</option>
+                    <option value="italiano">Italiano</option>
+                </select>
+                <input type="text" id="editErrorMessage" placeholder="Ex: Errado, continue tentando!">
+            </div>
+
+            <div class="form-group">
+                <label for="editGameType">Tipo de Jogo:</label>
+                <select id="editGameType" onchange="toggleEditGameType()">
+                    <option value="words">Palavras</option>
+                    <option value="letters">Letras</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="editWordsGroup">
+                <label for="editWords">Palavras (separadas por vírgula):</label>
+                <textarea id="editWords" rows="3"></textarea>
+            </div>
+
+            <div class="form-group" id="editLettersGroup" style="display: none;">
+                <label for="editLetters">Letras extras (separadas por vírgula):</label>
+                <textarea placeholder="Ex: a, b, c" id="editLetters" rows="2"></textarea>
+                Adicione letras extras para aumentar a dificuldade. Sem letras extras, apenas as letras da
+                resposta aparecerão.</small>
+            </div>
+
+            <div class="game-buttons">
+                <button class="game-btn btn-check" onclick="saveEdit()">💾 Salvar</button>
+                <button class="game-btn btn-clear" onclick="closeEditModal()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IndexedDB Configuration
+        let db;
+        const dbName = 'DuolingoGameDB';
+        const dbVersion = 1;
+
+        // Game State
+        let questions = [];
+        let currentQuestion = null;
+        let currentQuestionIndex = 0;
+        let selectedWords = [];
+        let gameStats = {
+            totalQuestions: 0,
+            correctAnswers: 0,
+            totalAnswered: 0
+        };
+        let editingIndex = -1;
+        let globalSpeechEnabled = true; // Controle global da fala
+        let remainingQuestions = []; //1 Array para controlar perguntas não respondidas
+        let speechQueue = 0; // Contador de falas pendentes
+
+
+        // Initialize IndexedDB
+        function initDB() {
+            const request = indexedDB.open(dbName, dbVersion);
+
+            request.onerror = function (event) {
+                console.error('Database error:', event.target.error);
+            };
+
+            request.onsuccess = function (event) {
+                db = event.target.result;
+                loadQuestions();
+                loadStats();
+            };
+
+            request.onupgradeneeded = function (event) {
+                db = event.target.result;
+
+                // Create questions store
+                if (!db.objectStoreNames.contains('questions')) {
+                    const questionsStore = db.createObjectStore('questions', { keyPath: 'id', autoIncrement: true });
+                    questionsStore.createIndex('question', 'question', { unique: false });
+                }
+
+                // Create stats store
+                if (!db.objectStoreNames.contains('stats')) {
+                    const statsStore = db.createObjectStore('stats', { keyPath: 'id' });
+                }
+            };
+        }
+
+        // Database Operations
+        function saveQuestion(question) {
+            const transaction = db.transaction(['questions'], 'readwrite');
+            const store = transaction.objectStore('questions');
+            store.add(question);
+
+            transaction.oncomplete = function () {
+                loadQuestions();
+            };
+        }
+
+        function updateQuestion(id, questionData) {
+            const transaction = db.transaction(['questions'], 'readwrite');
+            const store = transaction.objectStore('questions');
+
+            const getRequest = store.get(id);
+            getRequest.onsuccess = function () {
+                const data = getRequest.result;
+                Object.assign(data, questionData);
+
+                const putRequest = store.put(data);
+                putRequest.onsuccess = function () {
+                    loadQuestions();
+                };
+            };
+        }
+
+        function deleteQuestion(id) {
+            const transaction = db.transaction(['questions'], 'readwrite');
+            const store = transaction.objectStore('questions');
+            store.delete(id);
+
+            transaction.oncomplete = function () {
+                loadQuestions();
+            };
+        }
+
+        function loadQuestions() {
+            const transaction = db.transaction(['questions'], 'readonly');
+            const store = transaction.objectStore('questions');
+            const request = store.getAll();
+
+            request.onsuccess = function () {
+                questions = request.result;
+                updateQuestionsList();
+                updateStats();
+            };
+        }
+
+        function saveStats() {
+            const transaction = db.transaction(['stats'], 'readwrite');
+            const store = transaction.objectStore('stats');
+            store.put({ id: 'gameStats', ...gameStats });
+        }
+
+        function loadStats() {
+            const transaction = db.transaction(['stats'], 'readonly');
+            const store = transaction.objectStore('stats');
+            const request = store.get('gameStats');
+
+            request.onsuccess = function () {
+                if (request.result) {
+                    gameStats = { ...gameStats, ...request.result };
+                }
+                updateStatsDisplay();
+            };
+        }
+        // Speech Functions
+        function speakText(text, language = 'pt-BR', callback = null) {
+            // Verificar se a fala global está ativada
+            if (!globalSpeechEnabled) {
+                if (callback) callback(); // Chama o callback mesmo se não falar
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                speechQueue++; // Incrementa contador de falas
+
+                // Para mobile, precisa ser ativado por interação do usuário
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = language;
+                utterance.rate = 0.8;
+                utterance.volume = 1.0;
+
+                // Quando terminar de falar
+                utterance.onend = function () {
+                    speechQueue--; // Decrementa contador
+                    if (callback) {
+                        setTimeout(callback, 100); // Pequeno delay para garantir
+                    }
+                };
+
+                utterance.onerror = function (event) {
+                    speechQueue--; // Decrementa contador mesmo com erro
+                    if (callback) {
+                        setTimeout(callback, 100);
+                    }
+                };
+
+                // Garantir que o speechSynthesis está pronto
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    // Aguarda um pouco após cancelar antes de falar novamente
+                    setTimeout(() => {
+                        speechSynthesis.speak(utterance);
+                    }, 100);
+                } else {
+                    speechSynthesis.speak(utterance);
+                }
+            } else if (callback) {
+                callback(); // Chama o callback se não suportar fala
+            }
+        }
+
+        function getLanguageCode(language) {
+            const languages = {
+                'português': 'pt-BR',
+                'inglês': 'en-US',
+                'espanhol': 'es-ES',
+                'francês': 'fr-FR',
+                'italiano': 'it-IT'
+            };
+            return languages[language] || 'pt-BR';
+        }
+        //ativar desativar syntese global
+        function toggleGlobalSpeech() {
+            globalSpeechEnabled = !globalSpeechEnabled;
+
+            const btn = document.getElementById('globalSpeechBtn');
+            const status = document.getElementById('speechStatus');
+
+            if (globalSpeechEnabled) {
+                btn.classList.remove('disabled');
+                btn.innerHTML = '🔊 <span id="speechStatus">Fala Ativada</span>';
+                status.textContent = 'Fala Ativada';
+            } else {
+                btn.classList.add('disabled');
+                btn.innerHTML = '🔇 <span id="speechStatus">Fala Desativada</span>';
+                status.textContent = 'Fala Desativada';
+
+                // Para qualquer fala que esteja acontecendo
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+
+                }
+                speechQueue = 0; // Reseta contador quando cancela fala global
+            }
+
+            // Salvar a preferência (opcional)
+            localStorage.setItem('globalSpeechEnabled', globalSpeechEnabled);
+            updateSpeechIndicator();
+        }
+        // Game Logic
+        function startGame() {
+            speechQueue = 0;
+
+            if (questions.length === 0) {
+                alert('Adicione algumas perguntas primeiro!');
+                showAdmin();
+                return;
+            }
+
+            // Reinicia tudo
+            remainingQuestions = [...questions.map((q, index) => index)];
+            shuffleArray(remainingQuestions); // comente esta linha se quiser em ordem
+
+            currentQuestion = null;
+            currentQuestionIndex = null;
+
+            // Inicia com a primeira pergunta
+            loadNextQuestion();
+        }
+
+
+        function displayQuestion() {
+            speechQueue = 0; // Reseta contador ao exibir nova pergunta
+            document.getElementById('questionText').innerHTML =
+                ' <button class="repeat-audio-btn" onclick="repeatQuestion()" title="Repetir pergunta">🔊</button>' + ' ' + currentQuestion.question;
+            // Speak the question
+            if (currentQuestion.questionLanguage) {
+                setTimeout(() => {
+                    speakText(currentQuestion.question, getLanguageCode(currentQuestion.questionLanguage));
+                }, 500);//2
+            }
+
+            let allItems = [];
+
+            if (currentQuestion.type === 'letters') {
+                // Generate letters for the answer
+                const answerLetters = currentQuestion.answer.toLowerCase()
+                    .split('')
+                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
+
+                // Add extra letters if provided
+                const extraLetters = currentQuestion.extraLetters || [];
+
+                // Combine and shuffle - APENAS letras da resposta + extras manuais
+                allItems = [...answerLetters, ...extraLetters];
+            } else {
+                // Use words as before
+                allItems = [...currentQuestion.words];
+            }
+
+            shuffleArray(allItems);
+
+            // Display word/letter bank
+            const wordBank = document.getElementById('wordBank');
+            wordBank.innerHTML = '';
+
+            allItems.forEach(item => {
+                const itemChip = document.createElement('button');
+                itemChip.className = currentQuestion.type === 'letters' ? 'word-chip letter' : 'word-chip';
+                itemChip.textContent = item.toUpperCase();
+                itemChip.onclick = () => selectItem(item, itemChip);
+                wordBank.appendChild(itemChip);
+            });
+
+            // Clear answer area
+            clearAnswer();
+
+            // Update progress
+            updateProgress();
+            updateSpeechIndicator();
+        }
+        function repeatQuestion() {
+            if (currentQuestion && currentQuestion.questionLanguage) {
+                // Para qualquer fala em andamento antes de repetir
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                }
+
+                // Fala a pergunta novamente
+                setTimeout(() => {
+                    speakText(currentQuestion.question, getLanguageCode(currentQuestion.questionLanguage));
+                }, 100);
+            }
+        }
+
+        function selectItem(item, chipElement) {
+            if (chipElement.classList.contains('selected')) {
+                return;
+            }
+
+            selectedWords.push(item);
+            chipElement.classList.add('selected');
+
+            // Add to answer area
+            const answerArea = document.getElementById('answerArea');
+            const answerChip = document.createElement('button');
+            answerChip.className = currentQuestion.type === 'letters' ? 'word-chip letter' : 'word-chip';
+            answerChip.textContent = currentQuestion.type === 'letters' ? item.toUpperCase() : item;
+            answerChip.onclick = () => removeItem(item, answerChip, chipElement);
+            answerArea.appendChild(answerChip);
+
+            // Enable check button if we have items
+            document.getElementById('checkBtn').disabled = selectedWords.length === 0;
+        }
+
+        function removeItem(item, answerChip, originalChip) {
+            const index = selectedWords.indexOf(item);
+            if (index > -1) {
+                selectedWords.splice(index, 1);
+            }
+
+            answerChip.remove();
+            originalChip.classList.remove('selected');
+
+            document.getElementById('checkBtn').disabled = selectedWords.length === 0;
+        }
+
+        function clearAnswer() {
+            selectedWords = [];
+            document.getElementById('answerArea').innerHTML = '';
+            document.getElementById('answerArea').className = 'answer-area';
+
+            // Reset word chips
+            document.querySelectorAll('.word-chip.selected').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+
+            document.getElementById('checkBtn').disabled = true;
+        }
+
+        function checkAnswer() {
+            let userAnswer, correctAnswer;
+
+            if (currentQuestion.type === 'letters') {
+                // For letters, join without spaces and normalize
+                userAnswer = selectedWords.join('').toLowerCase().trim();
+                correctAnswer = currentQuestion.answer.toLowerCase().replace(/\s+/g, '').trim();
+            } else {
+                // For words, join with spaces
+                userAnswer = selectedWords.join(' ').toLowerCase().trim();
+                correctAnswer = currentQuestion.answer.toLowerCase().trim();
+            }
+
+            const feedbackEl = document.getElementById('feedback');
+            const answerArea = document.getElementById('answerArea');
+
+            gameStats.totalAnswered++;
+
+            if (userAnswer === correctAnswer) {
+                const successMsg = currentQuestion.successMessage || ' Correto! Muito bem!';
+                feedbackEl.textContent = `✔️ ${successMsg}: "${currentQuestion.answer}"`;
+                feedbackEl.className = 'feedback correct';
+                answerArea.className = 'answer-area correct';
+                gameStats.correctAnswers++;
+
+                // Falar a mensagem de sucesso se autoSpeak estiver ativado E fala global ativada
+                if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
+                    const successLanguage = currentQuestion.successLanguage || 'português';
+
+                    setTimeout(() => {
+                        // Fala a mensagem de sucesso e depois a resposta
+                        speakText(successMsg, getLanguageCode(successLanguage), () => {
+                            if (currentQuestion.answerLanguage) {
+                                setTimeout(() => {
+                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
+                                    });
+                                }, 300); // Delay entre as falas
+                            }
+                        });
+                    }, 300);
+                }
+            }
+            else {
+                const errorMsg = currentQuestion.errorMessage || 'Incorreto! A resposta era';
+                feedbackEl.textContent = `❌ ${errorMsg}: "${currentQuestion.answer}"`;
+                feedbackEl.className = 'feedback incorrect';
+                answerArea.className = 'answer-area incorrect';
+
+                // Falar a mensagem de erro se autoSpeak estiver ativado E fala global ativada
+                if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
+                    const errorLanguage = currentQuestion.errorLanguage || 'português';
+
+                    setTimeout(() => {
+                        // Fala a mensagem de erro e depois a resposta
+                        speakText(errorMsg, getLanguageCode(errorLanguage), () => {
+                            if (currentQuestion.answerLanguage) {
+                                setTimeout(() => {
+                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
+                                    });
+                                }, 300); // Delay entre as falas
+                            }
+                        });
+                    }, 300);
+                }
+            }
+
+            feedbackEl.style.display = 'block';
+            document.getElementById('checkBtn').disabled = true;
+
+            // Save stats and update display
+            saveStats();
+            updateStatsDisplay();
+
+            // Determinar tempo de espera baseado nas configurações de fala
+            let waitTime = 1500; // Tempo padrão para quando não há fala
+
+            // Se há fala ativada (global E local) E tem resposta para falar
+            if (currentQuestion.autoSpeak !== false && globalSpeechEnabled && currentQuestion.answerLanguage) {
+                // Aguardar todas as falas terminarem
+                setTimeout(() => {
+                    waitForSpeechToEnd(() => {
+                        nextQuestion();
+                    });
+                }, 1500); // Tempo para garantir que as duas falas sejam iniciadas
+            } else {
+                // Se não há fala ou está desativada, avançar após tempo fixo
+                setTimeout(() => {
+                    nextQuestion();
+                }, waitTime);
+            }
+        }
+
+        function waitForSpeechToEnd(callback) {
+            // Verifica se ainda há falas pendentes ou se o speechSynthesis ainda está falando
+            if (speechQueue > 0 || speechSynthesis.speaking) {
+                // Se ainda há falas pendentes, verifica novamente em 200ms
+                setTimeout(() => {
+                    waitForSpeechToEnd(callback);
+                }, 200);
+            } else {
+                // Aguarda mais tempo para garantir que todas as falas realmente terminaram
+                setTimeout(() => {
+                    // Verifica novamente após a pausa maior
+                    if (speechQueue === 0 && !speechSynthesis.speaking) {
+                        callback();
+                    } else {
+                        // Se ainda está falando, continua verificando
+                        waitForSpeechToEnd(callback);
+                    }
+                }, 800); // Aumentou significativamente o tempo de espera
+            }
+        }
+        function loadNextQuestion() {
+            speechQueue = 0;
+
+            // Verifica se acabou
+            if (remainingQuestions.length === 0) {
+                document.getElementById('questionText').textContent = '🎉 Parabéns! Você completou todas as perguntas!';
+                document.getElementById('wordBank').innerHTML = '';
+                document.getElementById('answerArea').innerHTML = '';
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('checkBtn').disabled = true;
+
+                setTimeout(() => {
+                    if (confirm('Quer jogar novamente?')) {
+                        startGame();
+                    }
+                }, 2000);
+
+                return;
+            }
+
+            currentQuestionIndex = remainingQuestions.shift();
+            currentQuestion = questions[currentQuestionIndex];
+
+            displayQuestion();
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function nextQuestion() {
+            loadNextQuestion();
+        }
+
+
+        // Admin Functions
+        function toggleGameType() {
+            const gameType = document.getElementById('gameType').value;
+            const wordsGroup = document.getElementById('wordsGroup');
+            const lettersGroup = document.getElementById('lettersGroup');
+
+            if (gameType === 'letters') {
+                wordsGroup.style.display = 'none';
+                lettersGroup.style.display = 'block';
+            } else {
+                wordsGroup.style.display = 'block';
+                lettersGroup.style.display = 'none';
+            }
+        }
+
+        function toggleEditGameType() {
+            const gameType = document.getElementById('editGameType').value;
+            const wordsGroup = document.getElementById('editWordsGroup');
+            const lettersGroup = document.getElementById('editLettersGroup');
+
+            if (gameType === 'letters') {
+                wordsGroup.style.display = 'none';
+                lettersGroup.style.display = 'block';
+            } else {
+                wordsGroup.style.display = 'block';
+                lettersGroup.style.display = 'none';
+            }
+        }
+
+        function addQuestion() {
+            const question = document.getElementById('questionInput').value.trim();
+            const answer = document.getElementById('answerInput').value.trim();
+            const gameType = document.getElementById('gameType').value;
+
+            if (!question || !answer) {
+                alert('Por favor, preencha a pergunta e a resposta!');
+                return;
+            }
+
+            let questionObj = {
+                question: question,
+                answer: answer,
+                type: gameType,
+                questionLanguage: document.getElementById('questionLanguage').value,
+                answerLanguage: document.getElementById('answerLanguage').value,
+                successMessage: document.getElementById('successMessage').value.trim(),
+                successLanguage: document.getElementById('successLanguage').value,
+                errorMessage: document.getElementById('errorMessage').value.trim(),
+                errorLanguage: document.getElementById('errorLanguage').value,
+                autoSpeak: document.getElementById('autoSpeak').checked
+            };
+
+            if (gameType === 'letters') {
+                const lettersInput = document.getElementById('lettersInput').value.trim();
+                const extraLetters = lettersInput ?
+                    lettersInput.split(',').map(letter => letter.trim().toLowerCase()).filter(letter => letter) : [];
+
+                questionObj.extraLetters = extraLetters;
+            } else {
+                const wordsInput = document.getElementById('wordsInput').value.trim();
+                const words = wordsInput ?
+                    wordsInput.split(',').map(word => word.trim()).filter(word => word) : [];
+
+                // Add answer words to word bank if not present
+                const answerWords = answer.split(' ').filter(word => word.trim());
+                answerWords.forEach(word => {
+                    if (!words.includes(word)) {
+                        words.push(word);
+                    }
+                });
+
+                questionObj.words = words;
+            }
+
+            saveQuestion(questionObj);
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('questionInput').value = '';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('wordsInput').value = '';
+            document.getElementById('lettersInput').value = '';
+            document.getElementById('gameType').value = 'words';
+            document.getElementById('questionLanguage').value = 'português';
+            document.getElementById('answerLanguage').value = 'inglês';
+            document.getElementById('successMessage').value = '';
+            document.getElementById('errorMessage').value = '';
+            document.getElementById('successLanguage').value = 'português';
+            document.getElementById('errorLanguage').value = 'português';
+            document.getElementById('autoSpeak').checked = true;
+            toggleGameType();
+        }
+
+        function updateQuestionsList(filtered = questions) {
+            const list = document.getElementById('questionsList');
+            list.innerHTML = '';
+
+            filtered.forEach((q, index) => {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+
+                const typeIcon = q.type === 'letters' ? '🔤' : '📝';
+                const autoSpeakIcon = q.autoSpeak !== false ? '🔊' : '🔇';
+                const extraInfo = q.type === 'letters' ?
+                    (q.extraLetters && q.extraLetters.length > 0 ?
+                        `<small><strong>Letras extras:</strong> ${q.extraLetters.join(', ')}</small>` :
+                        '<small><strong>Tipo:</strong> Apenas letras da resposta</small>') :
+                    `<small><strong>Palavras:</strong> ${q.words.join(', ')}</small>`;
+
+                item.innerHTML = `
+            <div class="question-content">
+                ${typeIcon} <strong>P:</strong> ${q.question}<br>
+                <strong>R:</strong> ${q.answer}<br>
+                ${autoSpeakIcon} <strong>Fala:</strong> ${q.autoSpeak !== false ? 'Ativada' : 'Desativada'} ${!globalSpeechEnabled ? '(Global: OFF)' : ''}<br>
+                ${extraInfo}
+            </div>
+            <div class="question-actions">
+                <button class="btn-small btn-edit" onclick="editQuestion(${q.id})">✏️</button>
+                <button class="btn-small btn-delete" onclick="deleteQuestionConfirm(${q.id})">🗑️</button>
+            </div>
+        `;
+
+                list.appendChild(item);
+            });
+        }
+
+
+        function filterQuestions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredQuestions = questions.filter(q =>
+                q.question.toLowerCase().includes(searchTerm) ||
+                q.answer.toLowerCase().includes(searchTerm)
+            );
+            updateQuestionsList(filteredQuestions);
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            filterQuestions(); // Atualiza a lista após limpar
+            input.focus();
+        }
+
+
+        function editQuestion(id) {
+            const question = questions.find(q => q.id === id);
+            if (!question) return;
+
+            editingIndex = id;
+            document.getElementById('editQuestion').value = question.question;
+            document.getElementById('editAnswer').value = question.answer;
+
+            // Set game type
+            document.getElementById('editGameType').value = question.type || 'words';
+            toggleEditGameType();
+
+            if (question.type === 'letters') {
+                document.getElementById('editLetters').value = (question.extraLetters || []).join(', ');
+            } else {
+                document.getElementById('editWords').value = (question.words || []).join(', ');
+            }
+
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editQuestionLanguage').value = question.questionLanguage || 'português';
+            document.getElementById('editSuccessMessage').value = question.successMessage || '';
+            document.getElementById('editSuccessLanguage').value = question.successLanguage || 'português';
+            document.getElementById('editErrorMessage').value = question.errorMessage || '';
+            document.getElementById('editErrorLanguage').value = question.errorLanguage || 'português';
+            document.getElementById('editAutoSpeak').checked = question.autoSpeak !== false;
+            document.getElementById('editAnswerLanguage').value = question.answerLanguage || 'inglês';
+        }
+
+        function saveEdit() {
+            const question = document.getElementById('editQuestion').value.trim();
+            const answer = document.getElementById('editAnswer').value.trim();
+            const gameType = document.getElementById('editGameType').value;
+
+            if (!question || !answer) {
+                alert('Por favor, preencha a pergunta e a resposta!');
+                return;
+            }
+
+            let questionData = {
+                question: question,
+                answer: answer,
+                type: gameType,
+                questionLanguage: document.getElementById('editQuestionLanguage').value,
+                answerLanguage: document.getElementById('editAnswerLanguage').value,
+                successMessage: document.getElementById('editSuccessMessage').value.trim(),
+                successLanguage: document.getElementById('editSuccessLanguage').value,
+                errorMessage: document.getElementById('editErrorMessage').value.trim(),
+                errorLanguage: document.getElementById('editErrorLanguage').value,
+                autoSpeak: document.getElementById('editAutoSpeak').checked,
+            };
+
+            if (gameType === 'letters') {
+                const lettersInput = document.getElementById('editLetters').value.trim();
+                const extraLetters = lettersInput ?
+                    lettersInput.split(',').map(letter => letter.trim().toLowerCase()).filter(letter => letter) : [];
+
+                questionData.extraLetters = extraLetters;
+            } else {
+                const wordsInput = document.getElementById('editWords').value.trim();
+                const words = wordsInput ?
+                    wordsInput.split(',').map(word => word.trim()).filter(word => word) : [];
+
+                // Add answer words to word bank if not present
+                const answerWords = answer.split(' ').filter(word => word.trim());
+                answerWords.forEach(word => {
+                    if (!words.includes(word)) {
+                        words.push(word);
+                    }
+                });
+
+                questionData.words = words;
+            }
+
+            updateQuestion(editingIndex, questionData);
+            closeEditModal();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingIndex = -1;
+        }
+
+        function deleteQuestionConfirm(id) {
+            if (confirm('Tem certeza que deseja excluir esta pergunta?')) {
+                deleteQuestion(id);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Tem certeza que deseja excluir TODAS as perguntas e estatísticas? Esta ação não pode ser desfeita!')) {
+                const transaction = db.transaction(['questions', 'stats'], 'readwrite');
+
+                transaction.objectStore('questions').clear();
+                transaction.objectStore('stats').clear();
+
+                transaction.oncomplete = function () {
+                    questions = [];
+                    gameStats = {
+                        totalQuestions: 0,
+                        correctAnswers: 0,
+                        totalAnswered: 0
+                    };
+                    updateQuestionsList();
+                    updateStatsDisplay();
+                    alert('Todos os dados foram excluídos!');
+                };
+            }
+        }
+
+        // Import/Export Functions
+        function exportQuestions() {
+            if (questions.length === 0) {
+                alert('Não há perguntas para exportar!');
+                return;
+            }
+
+            const data = {
+                questions: questions,
+                stats: gameStats,
+                exportDate: new Date().toISOString()
+            };
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jogo_educativo_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importQuestions(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (!data.questions || !Array.isArray(data.questions)) {
+                        alert('Arquivo inválido! Certifique-se de que é um arquivo de exportação válido.');
+                        return;
+                    }
+
+                    if (confirm(`Importar ${data.questions.length} perguntas? Isso adicionará às perguntas existentes.`)) {
+                        // Import questions
+                        const transaction = db.transaction(['questions'], 'readwrite');
+                        const store = transaction.objectStore('questions');
+
+                        data.questions.forEach(question => {
+                            // Remove id to avoid conflicts
+                            const { id, ...questionData } = question;
+                            store.add(questionData);
+                        });
+
+                        transaction.oncomplete = function () {
+                            loadQuestions();
+                            alert('Perguntas importadas com sucesso!');
+                        };
+                    }
+                } catch (error) {
+                    alert('Erro ao ler o arquivo! Certifique-se de que é um arquivo JSON válido.');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+
+            // Clear the input
+            event.target.value = '';
+        }
+
+        // Navigation Functions
+        function showGame() {
+            document.getElementById('gamePanel').style.display = 'block';
+            document.getElementById('adminPanel').classList.remove('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-btn')[0].classList.add('active');
+        }
+
+        function showAdmin() {
+            document.getElementById('gamePanel').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        }
+
+        // Utility Functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function updateSpeechIndicator() {
+            const indicator = document.getElementById('speechIndicator');
+            if (indicator) {
+                if (!globalSpeechEnabled) {
+                    indicator.textContent = '🔇 Fala global desativada';
+                    indicator.style.color = '#f44336';
+                } else if (currentQuestion && currentQuestion.autoSpeak === false) {
+                    indicator.textContent = '🔇 Fala desta pergunta desativada';
+                    indicator.style.color = '#ff9800';
+                } else {
+                    indicator.textContent = '';
+                }
+            }
+
+        }
+        function updateProgress() {
+            if (questions.length === 0) return;
+
+            const totalQuestions = questions.length;
+            const questionsAnswered = totalQuestions - remainingQuestions.length;
+            const progress = (questionsAnswered / totalQuestions) * 100;
+
+            document.getElementById('progressBar').style.width = progress + '%';
+        }//4
+
+        function updateStats() {
+            gameStats.totalQuestions = questions.length;
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
+            document.getElementById('correctAnswers').textContent = gameStats.correctAnswers;
+
+            const accuracy = gameStats.totalAnswered > 0 ?
+                Math.round((gameStats.correctAnswers / gameStats.totalAnswered) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // Keyboard Support
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !document.getElementById('checkBtn').disabled) {
+                checkAnswer();
+            } else if (e.key === 'Escape') {
+                clearAnswer();
+            }
+        });
+
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function () {
+            // Carregar preferência de fala global
+            const savedSpeechPref = localStorage.getItem('globalSpeechEnabled');
+            if (savedSpeechPref !== null) {
+                globalSpeechEnabled = savedSpeechPref === 'true';
+
+                // Atualizar o botão
+                const btn = document.getElementById('globalSpeechBtn');
+                const status = document.getElementById('speechStatus');
+
+                if (!globalSpeechEnabled) {
+                    btn.classList.add('disabled');
+                    btn.innerHTML = '🔇 <span id="speechStatus">Fala Desativada</span>';
+                }
+            }
+            initDB();
+
+            // Add some sample questions if none exist
+            setTimeout(() => {
+                if (questions.length === 0) {
+                    const sampleQuestions = [
+                        {
+                            question: "Como se diz 'olá' em inglês?",
+                            answer: "hello",
+                            type: "words",
+                            words: ["hello", "goodbye", "please", "thank", "you"]
+                        },
+                        {
+                            question: "Forme a palavra: 'GATO'",
+                            answer: "gato",
+                            type: "letters",
+                            extraLetters: []
+                        }
+                    ];
+
+                    const transaction = db.transaction(['questions'], 'readwrite');
+                    const store = transaction.objectStore('questions');
+
+                    sampleQuestions.forEach(question => {
+                        store.add(question);
+                    });
+
+                    transaction.oncomplete = function () {
+                        loadQuestions();
+                    };
+                }
+            }, 1000);
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/lingua/sw.js').then(function (registration) {
+                    console.log('ServiceWorker registration successful');
+                }).catch(function (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        // Add loading indicator
+        function showLoading() {
+            document.body.style.cursor = 'wait';
+        }
+
+        function hideLoading() {
+            document.body.style.cursor = 'default';
+        }
+
+        // Enhanced error handling
+        window.addEventListener('error', function (e) {
+            console.error('Application error:', e.error);
+            alert('Ocorreu um erro inesperado. Tente recarregar a página.');
+        });
+
+        // Database error handling
+        window.addEventListener('unhandledrejection', function (e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            alert('Erro de banco de dados. Verifique se o navegador suporta IndexedDB.');
+        });
+        const toggleBtn = document.getElementById('toggleBtn');
+        const toggleContainer = document.getElementById('toggleContainer');
+
+        let visible = false;
+
+        toggleBtn.addEventListener('click', () => {
+            visible = !visible;
+            toggleContainer.style.display = visible ? 'block' : 'none';
+            toggleBtn.textContent = visible ? 'Ocultar Opções' : 'Mostrar Opções';
+        });
+        // Fecha o modal ao clicar fora do conteúdo
+        // Referência ao modal
+        const editModal = document.getElementById('editModal');
+
+        // Fecha ao clicar fora do conteúdo
+        window.addEventListener('click', function (event) {
+            if (editModal.classList.contains('active') && event.target === editModal) {
+                editModal.classList.remove('active');
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
