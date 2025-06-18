@@ -127,7 +127,7 @@
 
         .question-display {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 0px;
         }
 
         .question-text {
@@ -419,13 +419,13 @@
         }
 
         .feedback {
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
+    text-align: center;
+    padding: 0px;
+    margin: 3px 0;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
 
         .feedback.correct {
             background: #f0fff4;
@@ -621,6 +621,62 @@
                 text-align: center;
             }
         }
+
+        /* botão de dica estilizado lampada piscando */
+        #hintButton {
+            display: none;
+            /* Começa oculto */
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            animation: glowPulse 2s infinite;
+            transition: transform 0.2s ease;
+            padding: 0.3em;
+            color: #ffc107;
+            /* amarelo-dica */
+        }
+
+        #hintButton:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 1;
+                text-shadow: 0 0 5px #ffc107, 0 0 10px #ffc107;
+            }
+
+            50% {
+                opacity: 0.5;
+                text-shadow: 0 0 2px #ffc107;
+            }
+
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 5px #ffc107, 0 0 10px #ffc107;
+            }
+        }
+
+        /* para a letra piscar com a dica */
+        .word-chip.hint {
+            border: 2px solid gold;
+            animation: pulse 1s ease-in-out 3;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                background-color: inherit;
+            }
+
+            50% {
+                transform: scale(1.1);
+                background-color: yellow;
+            }
+        }
     </style>
 </head>
 
@@ -654,7 +710,7 @@
             <button class="nav-btn active" onclick="showGame()">🎮 Jogar</button>
             <button class="nav-btn" onclick="showAdmin()">⚙️ Gerenciar</button>
         </div>
-        <div id="feedback" class="feedback" style="display: none;"></div>
+
         <div class="game-area">
             <!-- Área do Jogo -->
             <div id="gamePanel">
@@ -666,12 +722,14 @@
                     <div class="speech-indicator" id="speechIndicator"
                         style="font-size: 12px; color: #666; margin-top: 5px;"></div>
                 </div>
-
+                <div id="feedback" class="feedback" style="display: none;"></div>
                 <div class="word-bank" id="wordBank"></div>
+
 
                 <div class="answer-area" id="answerArea"></div>
 
                 <div class="game-buttons">
+                    <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
                     <button class="game-btn btn-check" id="checkBtn" onclick="checkAnswer()" disabled>✓
                         Verificar</button>
                     <button class="game-btn btn-clear" onclick="clearAnswer()">🗑️ Limpar</button>
@@ -901,6 +959,8 @@
         let globalSpeechEnabled = true; // Controle global da fala
         let remainingQuestions = []; //1 Array para controlar perguntas não respondidas
         let speechQueue = 0; // Contador de falas pendentes
+        let hintsUsedThisQuestion = 0;//usar dicas consome chances
+
 
 
         // Initialize IndexedDB
@@ -1108,6 +1168,8 @@
 
 
         function displayQuestion() {
+            hintsUsedThisQuestion = 0;
+            document.getElementById('hintButton').style.display = 'inline-block';
             speechQueue = 0; // Reseta contador ao exibir nova pergunta
             document.getElementById('questionText').innerHTML =
                 ' <button class="repeat-audio-btn" onclick="repeatQuestion()" title="Repetir pergunta">🔊</button>' + ' ' + currentQuestion.question;
@@ -1215,6 +1277,128 @@
 
             document.getElementById('checkBtn').disabled = true;
         }
+
+        function showHint() {
+            let correctAnswer;
+
+            if (currentQuestion.type === 'letters') {
+                correctAnswer = currentQuestion.answer.toLowerCase()
+                    .split('')
+                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
+            } else {
+                correctAnswer = currentQuestion.words;
+            }
+
+            const responseLength = correctAnswer.length;
+
+            // Cálculo do limite de dicas
+            let maxHints = 1;
+            if (responseLength >= 4 && responseLength <= 6) {
+                maxHints = 2;
+            } else if (responseLength > 6) {
+                maxHints = 3;
+            }
+
+            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion}`);
+
+            if (hintsUsedThisQuestion >= maxHints) {
+                showFeedbackMessage("🚫 Limite de dicas atingido para essa pergunta.");
+                document.getElementById('hintButton').style.display = 'none';
+                return;
+            }
+
+            // Verificar se seleção até agora está correta
+            let ordemCorreta = true;
+            for (let i = 0; i < selectedWords.length; i++) {
+                if (selectedWords[i].toLowerCase() !== correctAnswer[i].toLowerCase()) {
+                    ordemCorreta = false;
+                    break;
+                }
+            }
+
+            if (!ordemCorreta) {
+                showFeedbackMessage("❌ Ordem incorreta! Revise sua resposta.");
+                return;
+            }
+
+            // Já está tudo certo?
+            if (selectedWords.length >= correctAnswer.length) {
+                showFeedbackMessage("✅ Você já completou a resposta corretamente!");
+                return;
+            }
+
+            const nextIndex = selectedWords.length;
+            const nextExpected = correctAnswer[nextIndex];
+
+            // Procurar botão correspondente ainda não selecionado
+            const allWordElements = document.querySelectorAll('#wordBank .word-chip');
+            let found = false;
+
+            for (let element of allWordElements) {
+                const elementText = element.textContent.toLowerCase();
+
+                if (
+                    normalizeText(elementText) === normalizeText(nextExpected) &&
+                    !element.classList.contains('selected')
+                ) {
+
+                    element.classList.add('hint');
+                    element.style.animation = 'pulse 1s infinite';
+                    setTimeout(() => {
+                        element.classList.remove('hint');
+                        element.style.animation = '';
+                    }, 3000);
+
+                    showFeedbackMessage(
+                        `💡 Dica: A próxima ${currentQuestion.type === 'letters' ? 'letra' : 'palavra'} é "${nextExpected.toUpperCase()}"`
+                    );
+
+                    hintsUsedThisQuestion++;
+                    gameStats.hintsUsed++; // estatística geral
+                    saveStats();
+                    updateStatsDisplay();
+
+                    // Ocultar botão se atingir o limite após usar
+                    if (hintsUsedThisQuestion >= maxHints) {
+                        document.getElementById('hintButton').style.display = 'none';
+                    }
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                showFeedbackMessage(`⚠️ A próxima letra/palavra esperada é "${nextExpected}", mas não há botão disponível.`);
+            }
+        }
+
+
+
+
+        function showFeedbackMessage(message) {
+            const feedbackEl = document.getElementById('feedback');
+            const answerArea = document.getElementById('answerArea');
+
+            feedbackEl.textContent = message;
+            feedbackEl.className = 'feedback hint';
+            feedbackEl.style.display = 'block';
+
+            // Se quiser mudar estilo da área também:
+            answerArea.className = 'answer-area hint';
+        }
+
+
+
+
+
+        function highlightHint(button) {
+            button.classList.add('hint');
+            setTimeout(() => {
+                button.classList.remove('hint');
+            }, 1500);
+        }
+
 
         function checkAnswer() {
             let userAnswer, correctAnswer;
@@ -1753,6 +1937,14 @@
             }
         });
 
+        function normalizeText(text) {
+            return text
+                .toLowerCase()
+                .normalize("NFD") // remove acentos
+                .replace(/[\u0300-\u036f]/g, "") // remove diacríticos
+                .replace(/[.,!?;:]/g, "") // remove pontuação
+                .trim();
+        }
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function () {
