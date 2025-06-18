@@ -38,7 +38,7 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 0px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
             text-align: center;
@@ -88,8 +88,8 @@
 
         .nav-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 0px;
+            margin-bottom: 0px;
             flex-wrap: wrap;
         }
 
@@ -419,13 +419,13 @@
         }
 
         .feedback {
-    text-align: center;
-    padding: 0px;
-    margin: 3px 0;
-    border-radius: 15px;
-    font-size: 0.9em;
-    font-weight: bold;
-}
+            text-align: center;
+            padding: 0px;
+            margin: 3px 0;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
 
         .feedback.correct {
             background: #f0fff4;
@@ -624,7 +624,7 @@
 
         /* botão de dica estilizado lampada piscando */
         #hintButton {
-            display: none;
+
             /* Começa oculto */
             background: none;
             border: none;
@@ -683,9 +683,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯Linguas <div class="global-controls">
+            <h1>🎯Linguas <div id="statsDisplay"></div>
+                <div class="global-controls">
                     <button class="global-speech-btn" id="globalSpeechBtn" onclick="toggleGlobalSpeech()">
-                        🔊 <span id="speechStatus">Fala Ativada</span>
+                        🔊 <span id="speechStatus">Falar</span>
                     </button>
                 </div>
             </h1>
@@ -698,6 +699,7 @@
                     <div class="stat-value" id="correctAnswers">0</div>
                     <div class="stat-label">Acertos</div>
                 </div>
+
                 <div class="stat">
                     <div class="stat-value" id="accuracy">0%</div>
                     <div class="stat-label">Precisão</div>
@@ -727,6 +729,8 @@
 
 
                 <div class="answer-area" id="answerArea"></div>
+                <!-- <div id="statsDisplay"></div> -->
+                <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div>
 
                 <div class="game-buttons">
                     <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
@@ -843,6 +847,10 @@
                 <div class="file-buttons">
                     <button class="nav-btn" onclick="document.getElementById('importFile').click()">📁 Importar</button>
                     <button class="nav-btn" onclick="exportQuestions()">💾 Exportar</button>
+                </div>
+
+                <div class="file-buttons">
+                    <button class="nav-btn" onclick="clearStatsOnly()">🗑️ Limpar Status</button>
                     <button class="nav-btn" onclick="clearAllData()">🗑️ Limpar Tudo</button>
                 </div>
 
@@ -953,13 +961,16 @@
         let gameStats = {
             totalQuestions: 0,
             correctAnswers: 0,
-            totalAnswered: 0
+            totalAnswered: 0,
+            lives: 3 // por exemplo, começa com 3 vidas
         };
         let editingIndex = -1;
         let globalSpeechEnabled = true; // Controle global da fala
         let remainingQuestions = []; //1 Array para controlar perguntas não respondidas
         let speechQueue = 0; // Contador de falas pendentes
         let hintsUsedThisQuestion = 0;//usar dicas consome chances
+        let dicaFoiComVida = false;
+
 
 
 
@@ -1126,11 +1137,11 @@
 
             if (globalSpeechEnabled) {
                 btn.classList.remove('disabled');
-                btn.innerHTML = '🔊 <span id="speechStatus">Fala Ativada</span>';
+                btn.innerHTML = '🔊 <span id="speechStatus">Falar</span>';
                 status.textContent = 'Fala Ativada';
             } else {
                 btn.classList.add('disabled');
-                btn.innerHTML = '🔇 <span id="speechStatus">Fala Desativada</span>';
+                btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
                 status.textContent = 'Fala Desativada';
 
                 // Para qualquer fala que esteja acontecendo
@@ -1299,15 +1310,18 @@
                 maxHints = 3;
             }
 
-            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion}`);
+            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion} | Vidas: ${gameStats.lives}`);
 
-            if (hintsUsedThisQuestion >= maxHints) {
-                showFeedbackMessage("🚫 Limite de dicas atingido para essa pergunta.");
+            const usandoVida = gameStats.lives > 0;
+
+            // Se não tem vidas e já usou todas as dicas
+            if (!usandoVida && hintsUsedThisQuestion >= maxHints) {
+                showFeedbackMessage("🚫 Sem vidas e limite de dicas atingido.");
                 document.getElementById('hintButton').style.display = 'none';
                 return;
             }
 
-            // Verificar se seleção até agora está correta
+            // Verifica ordem
             let ordemCorreta = true;
             for (let i = 0; i < selectedWords.length; i++) {
                 if (selectedWords[i].toLowerCase() !== correctAnswer[i].toLowerCase()) {
@@ -1321,7 +1335,6 @@
                 return;
             }
 
-            // Já está tudo certo?
             if (selectedWords.length >= correctAnswer.length) {
                 showFeedbackMessage("✅ Você já completou a resposta corretamente!");
                 return;
@@ -1330,7 +1343,6 @@
             const nextIndex = selectedWords.length;
             const nextExpected = correctAnswer[nextIndex];
 
-            // Procurar botão correspondente ainda não selecionado
             const allWordElements = document.querySelectorAll('#wordBank .word-chip');
             let found = false;
 
@@ -1341,9 +1353,9 @@
                     normalizeText(elementText) === normalizeText(nextExpected) &&
                     !element.classList.contains('selected')
                 ) {
-
                     element.classList.add('hint');
                     element.style.animation = 'pulse 1s infinite';
+
                     setTimeout(() => {
                         element.classList.remove('hint');
                         element.style.animation = '';
@@ -1353,13 +1365,22 @@
                         `💡 Dica: A próxima ${currentQuestion.type === 'letters' ? 'letra' : 'palavra'} é "${nextExpected.toUpperCase()}"`
                     );
 
-                    hintsUsedThisQuestion++;
-                    gameStats.hintsUsed++; // estatística geral
+                    // ✅ Penaliza corretamente
+                    if (usandoVida) {
+                        gameStats.lives = Math.max(0, gameStats.lives - 1);
+                        dicaFoiComVida = true;
+                        showFeedbackMessage("💡 Você usou 1 vida para receber uma dica.");
+                    } else {
+                        hintsUsedThisQuestion++;
+                        dicaFoiComVida = false;
+                    }
+
+                    gameStats.hintsUsed++;
                     saveStats();
                     updateStatsDisplay();
 
-                    // Ocultar botão se atingir o limite após usar
-                    if (hintsUsedThisQuestion >= maxHints) {
+                    // Oculta apenas se não tiver vidas e acabou as dicas
+                    if (gameStats.lives === 0 && hintsUsedThisQuestion >= maxHints) {
                         document.getElementById('hintButton').style.display = 'none';
                     }
 
@@ -1372,6 +1393,7 @@
                 showFeedbackMessage(`⚠️ A próxima letra/palavra esperada é "${nextExpected}", mas não há botão disponível.`);
             }
         }
+
 
 
 
@@ -1404,11 +1426,9 @@
             let userAnswer, correctAnswer;
 
             if (currentQuestion.type === 'letters') {
-                // For letters, join without spaces and normalize
                 userAnswer = selectedWords.join('').toLowerCase().trim();
                 correctAnswer = currentQuestion.answer.toLowerCase().replace(/\s+/g, '').trim();
             } else {
-                // For words, join with spaces
                 userAnswer = selectedWords.join(' ').toLowerCase().trim();
                 correctAnswer = currentQuestion.answer.toLowerCase().trim();
             }
@@ -1418,48 +1438,65 @@
 
             gameStats.totalAnswered++;
 
-            if (userAnswer === correctAnswer) {
-                const successMsg = currentQuestion.successMessage || ' Correto! Muito bem!';
+            const isCorrect = (userAnswer === correctAnswer); // salvar para reusar
+
+            if (isCorrect) {
+                const successMsg = currentQuestion.successMessage || 'Correto! Muito bem!';
                 feedbackEl.textContent = `✔️ ${successMsg}: "${currentQuestion.answer}"`;
                 feedbackEl.className = 'feedback correct';
                 answerArea.className = 'answer-area correct';
+
                 gameStats.correctAnswers++;
 
-                // Falar a mensagem de sucesso se autoSpeak estiver ativado E fala global ativada
+                // ✅ Ganha 1 vida até o limite de 5
+                gameStats.lives = Math.min(gameStats.lives + 1, 7);
+
                 if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
                     const successLanguage = currentQuestion.successLanguage || 'português';
-
                     setTimeout(() => {
-                        // Fala a mensagem de sucesso e depois a resposta
                         speakText(successMsg, getLanguageCode(successLanguage), () => {
                             if (currentQuestion.answerLanguage) {
                                 setTimeout(() => {
-                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
-                                    });
-                                }, 300); // Delay entre as falas
+                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage));
+                                }, 300);
                             }
                         });
                     }, 300);
                 }
-            }
-            else {
+
+            } else {
                 const errorMsg = currentQuestion.errorMessage || 'Incorreto! A resposta era';
                 feedbackEl.textContent = `❌ ${errorMsg}: "${currentQuestion.answer}"`;
                 feedbackEl.className = 'feedback incorrect';
                 answerArea.className = 'answer-area incorrect';
 
-                // Falar a mensagem de erro se autoSpeak estiver ativado E fala global ativada
+                // ✅ Perde 2 vidas se tiver usado dicas
+                // Só perde 2 vidas se usou dica sem gastar vida
+// Se errou e usou dica gratuita (não tinha vidas ao pedir dica)
+if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
+    vidasPerdidas = Math.min(2, gameStats.lives); // Tira até 2 vidas
+    gameStats.lives -= vidasPerdidas;
+    showFeedbackMessage(`❌ Você usou dica gratuita e errou. Perdeu ${vidasPerdidas} ${vidasPerdidas === 1 ? 'vida' : 'vidas'}.`);
+} else {
+    // Mesmo que não usou dica, ainda assim perde 1 vida pelo erro normal
+    if (gameStats.lives > 0) {
+        gameStats.lives -= 1;
+        showFeedbackMessage("❌ Você errou a pergunta. Perdeu 1 vida.");
+    } else {
+        showFeedbackMessage("❌ Você errou, mas já está sem vidas.");
+    }
+}
+
+
+
                 if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
                     const errorLanguage = currentQuestion.errorLanguage || 'português';
-
                     setTimeout(() => {
-                        // Fala a mensagem de erro e depois a resposta
                         speakText(errorMsg, getLanguageCode(errorLanguage), () => {
                             if (currentQuestion.answerLanguage) {
                                 setTimeout(() => {
-                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
-                                    });
-                                }, 300); // Delay entre as falas
+                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage));
+                                }, 300);
                             }
                         });
                     }, 300);
@@ -1469,28 +1506,30 @@
             feedbackEl.style.display = 'block';
             document.getElementById('checkBtn').disabled = true;
 
-            // Save stats and update display
+            // Atualiza e salva as estatísticas
             saveStats();
             updateStatsDisplay();
 
-            // Determinar tempo de espera baseado nas configurações de fala
-            let waitTime = 1500; // Tempo padrão para quando não há fala
+            // Aguarda para ir para próxima pergunta
+            let waitTime = 1500;
 
-            // Se há fala ativada (global E local) E tem resposta para falar
             if (currentQuestion.autoSpeak !== false && globalSpeechEnabled && currentQuestion.answerLanguage) {
-                // Aguardar todas as falas terminarem
                 setTimeout(() => {
                     waitForSpeechToEnd(() => {
                         nextQuestion();
                     });
-                }, 1500); // Tempo para garantir que as duas falas sejam iniciadas
+                }, 1500);
             } else {
-                // Se não há fala ou está desativada, avançar após tempo fixo
                 setTimeout(() => {
                     nextQuestion();
                 }, waitTime);
             }
         }
+        function renderLives() {
+            const el = document.getElementById("livesDisplay");
+            el.innerHTML = "❤️".repeat(gameStats.lives) + "🤍".repeat(5 - gameStats.lives);
+        }
+
 
         function waitForSpeechToEnd(callback) {
             // Verifica se ainda há falas pendentes ou se o speechSynthesis ainda está falando
@@ -1776,24 +1815,37 @@
                 deleteQuestion(id);
             }
         }
-
+        //resetar todas as perguntas
         function clearAllData() {
-            if (confirm('Tem certeza que deseja excluir TODAS as perguntas e estatísticas? Esta ação não pode ser desfeita!')) {
-                const transaction = db.transaction(['questions', 'stats'], 'readwrite');
+            if (confirm('Tem certeza que deseja excluir TODAS as perguntas? Esta ação não pode ser desfeita!')) {
+                const transaction = db.transaction(['questions'], 'readwrite');
 
                 transaction.objectStore('questions').clear();
-                transaction.objectStore('stats').clear();
 
                 transaction.oncomplete = function () {
                     questions = [];
                     gameStats = {
-                        totalQuestions: 0,
-                        correctAnswers: 0,
-                        totalAnswered: 0
+                        totalQuestions: 0
                     };
                     updateQuestionsList();
+                    alert('Todas as perguntas foram excluídos!');
+                };
+            }
+        }
+        //reseta somente statisticas
+        function clearStatsOnly() {
+            if (confirm('Tem certeza que deseja excluir TODAS estatísticas? Esta ação não pode ser desfeita!')) {
+                const transaction = db.transaction(['stats'], 'readwrite');
+                transaction.objectStore('stats').clear();
+                transaction.oncomplete = function () {
+                    questions = [];
+                    gameStats = {
+                        correctAnswers: 0,
+                        totalAnswered: 0,
+                        lives: 3 // por exemplo, começa com 3 vidas
+                    };
                     updateStatsDisplay();
-                    alert('Todos os dados foram excluídos!');
+                    alert('Todos os status excluídos!');
                 };
             }
         }
@@ -1920,6 +1972,9 @@
         }
 
         function updateStatsDisplay() {
+            document.getElementById('statsDisplay').innerText = `
+                ❤️ ${gameStats.lives}
+            `;
             document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
             document.getElementById('correctAnswers').textContent = gameStats.correctAnswers;
 
@@ -1959,7 +2014,7 @@
 
                 if (!globalSpeechEnabled) {
                     btn.classList.add('disabled');
-                    btn.innerHTML = '🔇 <span id="speechStatus">Fala Desativada</span>';
+                    btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
                 }
             }
             initDB();
@@ -1969,16 +2024,36 @@
                 if (questions.length === 0) {
                     const sampleQuestions = [
                         {
-                            question: "Como se diz 'olá' em inglês?",
-                            answer: "hello",
-                            type: "words",
-                            words: ["hello", "goodbye", "please", "thank", "you"]
-                        },
-                        {
-                            question: "Forme a palavra: 'GATO'",
-                            answer: "gato",
-                            type: "letters",
-                            extraLetters: []
+                            "question": "Como se diz 'olá' em inglês?",
+                            "answer": "hello",
+                            "type": "words",
+                            "words": [
+                                "hello",
+                                "please",
+                                "thank",
+                                "you"
+                            ],
+                            "id": 1,
+                            "questionLanguage": "português",
+                            "answerLanguage": "inglês",
+                            "successMessage": "parabéns, acertou!",
+                            "successLanguage": "português",
+                            "errorMessage": "Errou, continue tentando!",
+                            "errorLanguage": "português",
+                            "autoSpeak": true
+                        }, {
+                            "question": "Forme a palavra: 'GATO' em inglês",
+                            "answer": "cat",
+                            "type": "letters",
+                            "extraLetters": [],
+                            "id": 2,
+                            "questionLanguage": "português",
+                            "answerLanguage": "inglês",
+                            "successMessage": "parabéns, acertou!",
+                            "successLanguage": "português",
+                            "errorMessage": "Errado, Continue Tentando!",
+                            "errorLanguage": "português",
+                            "autoSpeak": true
                         }
                     ];
 
@@ -2035,7 +2110,7 @@
         toggleBtn.addEventListener('click', () => {
             visible = !visible;
             toggleContainer.style.display = visible ? 'block' : 'none';
-            toggleBtn.textContent = visible ? 'Ocultar Opções' : 'Mostrar Opções';
+            toggleBtn.textContent = visible ? 'Ocultar Opções' : 'Mostrar Outras Opções';
         });
         // Fecha o modal ao clicar fora do conteúdo
         // Referência ao modal
