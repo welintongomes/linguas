@@ -628,7 +628,7 @@
             /* display: none; */
             background: none;
             border: none;
-            font-size: 2rem;
+            font-size: 1.6rem;
             cursor: pointer;
             animation: glowPulse 2s infinite;
             transition: transform 0.2s ease;
@@ -789,6 +789,24 @@
         .heart-gain {
             animation: heartPulse 0.4s ease-in-out;
         }
+
+        /* transiçao animada entre as perguntas */
+        .fade {
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .fade-in {
+            opacity: 1;
+        }
+
+        .displayRedondo {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -836,9 +854,13 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressBar"></div>
                     </div>
-                    <div class="question-text" id="questionText">Clique em "Iniciar Jogo" para começar!</div>
-                    <div class="speech-indicator" id="speechIndicator"
-                        style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+                    <div id="questionArea" class="fade fade-in">
+                        <div class="question-text" id="questionText">Clique em "Iniciar Jogo" para começar!</div>
+                        <div class="speech-indicator" id="speechIndicator"
+                            style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+                    </div>
+
+
                 </div>
                 <div id="feedback" class="feedback" style="display: none;"></div>
                 <div class="word-bank" id="wordBank"></div>
@@ -1088,7 +1110,7 @@
             totalQuestions: 0,
             correctAnswers: 0,
             totalAnswered: 0,
-            lives: 3 // por exemplo, começa com 3 vidas
+            lives: 5 // por exemplo, começa com 3 vidas
         };
         let editingIndex = -1;
         let globalSpeechEnabled = true; // Controle global da fala
@@ -1511,6 +1533,24 @@
                         dicaFoiComVida = false;
                         showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
                     }
+                    const hintBtn = document.getElementById('hintButton');
+
+                    // Bloqueia por 10 segundos
+                    hintBtn.disabled = true;
+                    let secondsLeft = 10;
+
+                    hintBtn.textContent = `⏳ ${secondsLeft}s`;
+                    const hintCooldown = setInterval(() => {
+                        secondsLeft--;
+                        if (secondsLeft > 0) {
+                            hintBtn.textContent = `⏳ ${secondsLeft}s`;
+                        } else {
+                            clearInterval(hintCooldown);
+                            hintBtn.disabled = false;
+                            hintBtn.textContent = '💡';
+                        }
+                    }, 1000);
+
 
                     // Atualiza stats primeiro
                     gameStats.hintsUsed++;
@@ -1726,6 +1766,19 @@
                 console.log("⏳ Ainda não passaram 2 horas desde o último reset.");
             }
         }
+        // agora deu certo barra gaug para contador de proxima pergunta
+        setInterval(() => {
+            const status = getHeartStatus(); // já usada no modal
+
+            // Atualiza o canvas (mesmo fora do modal)
+            drawHeartTimer(status.timeUntilNextHeartMs);
+
+            // Se quiser atualizar a barra também:
+            const progressPercent = Math.floor(100 * (1 - status.timeUntilNextHeartMs / 60000));
+            const progressBar = document.querySelector('#heartInterval');
+            if (progressBar) progressBar.style.width = `${progressPercent}%`;
+
+        }, 1000);
 
         function getHeartStatus() {
             const now = Date.now();
@@ -1763,12 +1816,6 @@
                 showFeedbackMessage(`❤️ Você pode ganhar mais ${status.remainingHearts} ${status.remainingHearts === 1 ? 'coração' : 'corações'} hoje.`);
             }
         }
-
-        function renderLives() {
-            const el = document.getElementById("livesDisplay");
-            el.innerHTML = "❤️".repeat(gameStats.lives) + "🤍".repeat(5 - gameStats.lives);
-        }
-
 
         function waitForSpeechToEnd(callback) {
             // Verifica se ainda há falas pendentes ou se o speechSynthesis ainda está falando
@@ -1809,12 +1856,23 @@
 
                 return;
             }
+            const area = document.getElementById('questionArea');
+            area.classList.remove('fade-in');
+            area.classList.add('fade-out');
 
-            currentQuestionIndex = remainingQuestions.shift();
-            currentQuestion = questions[currentQuestionIndex];
+            setTimeout(() => {
+                // Atualiza pergunta aqui
+                currentQuestionIndex = remainingQuestions.shift();
+                currentQuestion = questions[currentQuestionIndex];
 
-            displayQuestion();
-            document.getElementById('feedback').style.display = 'none';
+                displayQuestion();
+                document.getElementById('feedback').style.display = 'none';
+                area.classList.remove('fade-out');
+                area.classList.add('fade-in');
+            }, 400); // mesmo tempo do CSS
+
+
+
         }
 
         function nextQuestion() {
@@ -2212,7 +2270,10 @@
 
         function updateStatsDisplay() {
             document.getElementById('statsDisplay').innerHTML = `
-        <span onclick="openHeartModal()" style="cursor: pointer;">❤️ ${gameStats.lives}</span>
+            <div class="displayRedondo">
+        <span onclick="openHeartModal()" style="cursor: pointer;">❤️</span>
+        <canvas id="heartTimerCanvas" width="50" height="50"></canvas></div>
+
     `;
 
             document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
@@ -2223,6 +2284,38 @@
             document.getElementById('accuracy').textContent = accuracy + '%';
         }
 
+        //funçao para contador redondo
+        function drawHeartTimer(msLeft) {
+            const canvas = document.getElementById('heartTimerCanvas');
+            const ctx = canvas.getContext('2d');
+            const total = 60000; // 60 segundos
+            const percent = (total - msLeft) / total;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const center = 25;
+            const radius = 20;
+
+            // Fundo
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // Progresso
+            ctx.beginPath();
+            ctx.arc(center, center, radius, -0.5 * Math.PI, (2 * Math.PI * percent) - 0.5 * Math.PI);
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            // Número de vidas no centro
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(gameStats.lives, center, center); // <-- Aqui aparece o número
+        }
 
         // Keyboard Support
         document.addEventListener('keydown', function (e) {
@@ -2446,6 +2539,8 @@
             } else if (status.remainingHearts > 0) {
                 html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
             }
+
+            drawHeartTimer(status.timeUntilNextHeartMs);
 
             contentEl.innerHTML = html;
         }
