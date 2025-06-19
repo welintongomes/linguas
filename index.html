@@ -1780,6 +1780,12 @@
 
         }, 1000);
 
+        setInterval(() => {
+            const status = getHeartStatus();
+            drawHeartTimer(status.timeUntilNextHeartMs, status.timeUntilResetMs);
+        }, 1000);
+
+
         function getHeartStatus() {
             const now = Date.now();
             const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
@@ -2272,7 +2278,8 @@
             document.getElementById('statsDisplay').innerHTML = `
             <div class="displayRedondo">
         <span onclick="openHeartModal()" style="cursor: pointer;">❤️</span>
-        <canvas id="heartTimerCanvas" width="50" height="50"></canvas></div>
+        <canvas id="heartTimerCanvas" width="60" height="60" style="width: 40px; height: 40px;"></canvas></div>
+
 
     `;
 
@@ -2285,37 +2292,60 @@
         }
 
         //funçao para contador redondo
-        function drawHeartTimer(msLeft) {
+        function drawHeartTimer(msToNextHeart, msToReset) {
             const canvas = document.getElementById('heartTimerCanvas');
+            if (!canvas) return;
+
             const ctx = canvas.getContext('2d');
-            const total = 60000; // 60 segundos
-            const percent = (total - msLeft) / total;
+            const width = canvas.width;
+            const height = canvas.height;
+            const center = width / 2;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, width, height);
 
-            const center = 25;
-            const radius = 20;
+            // --------------------------
+            // 🔄 Círculo externo (1 min)
+            const radiusOuter = 28;
+            const percentNext = (60000 - msToNextHeart) / 60000;
 
-            // Fundo
             ctx.beginPath();
-            ctx.arc(center, center, radius, 0, 2 * Math.PI);
+            ctx.arc(center, center, radiusOuter, 0, 2 * Math.PI);
             ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.stroke();
 
-            // Progresso
             ctx.beginPath();
-            ctx.arc(center, center, radius, -0.5 * Math.PI, (2 * Math.PI * percent) - 0.5 * Math.PI);
+            ctx.arc(center, center, radiusOuter, -0.5 * Math.PI, (2 * Math.PI * percentNext) - 0.5 * Math.PI);
             ctx.strokeStyle = '#4caf50';
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.stroke();
-            // Número de vidas no centro
+
+            // --------------------------
+            // 🕒 Círculo interno (2h)
+            const radiusInner = 20;
+            const percentReset = (2 * 60 * 60 * 1000 - msToReset) / (2 * 60 * 60 * 1000);
+
+            ctx.beginPath();
+            ctx.arc(center, center, radiusInner, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#eee';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(center, center, radiusInner, -0.5 * Math.PI, (2 * Math.PI * percentReset) - 0.5 * Math.PI);
+            ctx.strokeStyle = '#ff9800'; // cor do reset diário
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // --------------------------
+            // ❤️ Número de vidas
             ctx.fillStyle = '#000';
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(gameStats.lives, center, center); // <-- Aqui aparece o número
+            ctx.fillText(gameStats.lives, center, center);
         }
+
 
         // Keyboard Support
         document.addEventListener('keydown', function (e) {
@@ -2540,7 +2570,8 @@
                 html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
             }
 
-            drawHeartTimer(status.timeUntilNextHeartMs);
+            // drawHeartTimer(status.timeUntilNextHeartMs, status.timeUntilResetMs);
+
 
             contentEl.innerHTML = html;
         }
