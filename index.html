@@ -624,8 +624,8 @@
 
         /* botão de dica estilizado lampada piscando */
         #hintButton {
-
             /* Começa oculto */
+            /* display: none; */
             background: none;
             border: none;
             font-size: 2rem;
@@ -677,6 +677,118 @@
                 background-color: yellow;
             }
         }
+
+        /* css para o modal de exibir estatisticas dos coraçoes */
+        #heartModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        #heartModal .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            cursor: default;
+            /* Para o conteúdo não parecer clicável */
+        }
+
+        #heartModal .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* efeito de perda de coraçoes  */
+        @keyframes shake {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            20% {
+                transform: translate(-3px, 0);
+            }
+
+            40% {
+                transform: translate(3px, 0);
+            }
+
+            60% {
+                transform: translate(-3px, 0);
+            }
+
+            80% {
+                transform: translate(3px, 0);
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        .heart-shake {
+            animation: shake 0.4s;
+        }
+
+        @keyframes heartShake {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(-3px, 0);
+            }
+
+            50% {
+                transform: translate(3px, 0);
+            }
+
+            75% {
+                transform: translate(-3px, 0);
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        .heart-shake {
+            animation: heartShake 0.4s ease-in-out;
+        }
+
+        /* coraçao brilha quando ganha vida */
+        @keyframes heartPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-gain {
+            animation: heartPulse 0.4s ease-in-out;
+        }
     </style>
 </head>
 
@@ -684,6 +796,7 @@
     <div class="container">
         <div class="header">
             <h1>🎯Linguas <div id="statsDisplay"></div>
+                <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div>
                 <div class="global-controls">
                     <button class="global-speech-btn" id="globalSpeechBtn" onclick="toggleGlobalSpeech()">
                         🔊 <span id="speechStatus">Falar</span>
@@ -694,6 +807,9 @@
                 <div class="stat">
                     <div class="stat-value" id="totalQuestions">0</div>
                     <div class="stat-label">Perguntas</div>
+                    <!-- <button onclick="mostrarStatusCoracoes()">Ver status dos corações</button> -->
+
+
                 </div>
                 <div class="stat">
                     <div class="stat-value" id="correctAnswers">0</div>
@@ -730,7 +846,7 @@
 
                 <div class="answer-area" id="answerArea"></div>
                 <!-- <div id="statsDisplay"></div> -->
-                <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div>
+                <!-- <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div> -->
 
                 <div class="game-buttons">
                     <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
@@ -946,11 +1062,21 @@
             </div>
         </div>
     </div>
+    <!-- Modal de Status dos Corações -->
+    <div id="heartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeHeartModal()">&times;</span>
+            <h2>💖 Status dos Corações</h2>
+            <div id="heartStatusContent">
+                <!-- Conteúdo dinâmico aqui -->
+            </div>
+        </div>
+    </div>
 
     <script>
         // IndexedDB Configuration
         let db;
-        const dbName = 'DuolingoGameDB';
+        const dbName = 'LangDB';
         const dbVersion = 1;
 
         // Game State
@@ -984,6 +1110,7 @@
 
             request.onsuccess = function (event) {
                 db = event.target.result;
+                initializeHeartTimers();
                 loadQuestions();
                 loadStats();
             };
@@ -1291,6 +1418,11 @@
 
         function showHint() {
             let correctAnswer;
+            if (!currentQuestion) {
+                console.warn("currentQuestion está indefinido ou null ao tentar usar uma dica.");
+                showFeedbackMessage("⚠️ Nenhuma pergunta ativa no momento.");
+                return;
+            }
 
             if (currentQuestion.type === 'letters') {
                 correctAnswer = currentQuestion.answer.toLowerCase()
@@ -1366,14 +1498,41 @@
                     );
 
                     // ✅ Penaliza corretamente
+                    // Sempre conta como uma dica usada
+                    hintsUsedThisQuestion++;
+                    gameStats.hintsUsed++;
+
+                    // Aplica penalidade
                     if (usandoVida) {
                         gameStats.lives = Math.max(0, gameStats.lives - 1);
                         dicaFoiComVida = true;
                         showFeedbackMessage("💡 Você usou 1 vida para receber uma dica.");
                     } else {
-                        hintsUsedThisQuestion++;
                         dicaFoiComVida = false;
+                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
                     }
+
+                    // Atualiza stats primeiro
+                    gameStats.hintsUsed++;
+                    saveStats();
+                    updateStatsDisplay();
+
+                    // 🔄 Só depois anima
+                    if (usandoVida) {
+                        const heartEl = document.getElementById('statsDisplay');
+                        heartEl.classList.remove('heart-shake');
+                        requestAnimationFrame(() => {
+                            heartEl.classList.add('heart-shake');
+                            setTimeout(() => {
+                                heartEl.classList.remove('heart-shake');
+                            }, 400);
+                        });
+                    }
+                    else {
+                        dicaFoiComVida = false;
+                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
+                    }
+
 
                     gameStats.hintsUsed++;
                     saveStats();
@@ -1421,7 +1580,6 @@
             }, 1500);
         }
 
-
         function checkAnswer() {
             let userAnswer, correctAnswer;
 
@@ -1438,7 +1596,7 @@
 
             gameStats.totalAnswered++;
 
-            const isCorrect = (userAnswer === correctAnswer); // salvar para reusar
+            const isCorrect = (userAnswer === correctAnswer);
 
             if (isCorrect) {
                 const successMsg = currentQuestion.successMessage || 'Correto! Muito bem!';
@@ -1448,8 +1606,36 @@
 
                 gameStats.correctAnswers++;
 
-                // ✅ Ganha 1 vida até o limite de 5
-                gameStats.lives = Math.min(gameStats.lives + 1, 7);
+                const now = Date.now();
+                const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
+                const heartsEarnedToday = parseInt(localStorage.getItem('heartsEarnedToday')) || 0;
+
+                const canEarnHeart = (now - lastEarned >= 60 * 1000) && (heartsEarnedToday < 10);
+
+                if (canEarnHeart && gameStats.lives < 7) {
+                    gameStats.lives += 1;
+
+                    // Animação de ganho de vida
+                    const heartEl = document.getElementById('statsDisplay');
+                    heartEl.classList.remove('heart-gain'); // reinicia se estiver animando
+                    requestAnimationFrame(() => {
+                        heartEl.classList.add('heart-gain');
+                        setTimeout(() => {
+                            heartEl.classList.remove('heart-gain');
+                        }, 600); // mesmo tempo da animação
+                    });
+
+
+                    localStorage.setItem('heartsEarnedToday', (heartsEarnedToday + 1).toString());
+                    localStorage.setItem('lastHeartEarnedAt', now.toString());
+                }
+                else if (heartsEarnedToday >= 10) {
+                    // showFeedbackMessage("🛑 Você atingiu o limite de 10 corações hoje. Volte amanhã!");
+                } else {
+                    const secondsLeft = Math.ceil((60 * 1000 - (now - lastEarned)) / 1000);
+                    // showFeedbackMessage(`⏳ Aguarde ${secondsLeft}s para poder ganhar outro coração.`);
+                }
+
 
                 if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
                     const successLanguage = currentQuestion.successLanguage || 'português';
@@ -1470,24 +1656,24 @@
                 feedbackEl.className = 'feedback incorrect';
                 answerArea.className = 'answer-area incorrect';
 
-                // ✅ Perde 2 vidas se tiver usado dicas
-                // Só perde 2 vidas se usou dica sem gastar vida
-// Se errou e usou dica gratuita (não tinha vidas ao pedir dica)
-if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
-    vidasPerdidas = Math.min(2, gameStats.lives); // Tira até 2 vidas
-    gameStats.lives -= vidasPerdidas;
-    showFeedbackMessage(`❌ Você usou dica gratuita e errou. Perdeu ${vidasPerdidas} ${vidasPerdidas === 1 ? 'vida' : 'vidas'}.`);
-} else {
-    // Mesmo que não usou dica, ainda assim perde 1 vida pelo erro normal
-    if (gameStats.lives > 0) {
-        gameStats.lives -= 1;
-        showFeedbackMessage("❌ Você errou a pergunta. Perdeu 1 vida.");
-    } else {
-        showFeedbackMessage("❌ Você errou, mas já está sem vidas.");
-    }
-}
+                // 🔻 Penalidade por erro fixo: -2 vidas
+                const vidasErro = Math.min(2, gameStats.lives);
+                gameStats.lives -= vidasErro;
+                // Vibra o coração ao perder vida
+                const heartEl = document.getElementById('statsDisplay');
+                heartEl.classList.add('heart-shake');
+
+                // Remove o efeito após a animação para poder reutilizar depois
+                setTimeout(() => {
+                    heartEl.classList.remove('heart-shake');
+                }, 400);
 
 
+                // 🔻 Penalidade total = dicas usadas + erro
+                const vidasDicas = hintsUsedThisQuestion;
+                const vidasTotais = vidasDicas + vidasErro;
+
+                showFeedbackMessage(`❌ Você usou ${vidasDicas} dica(s) e errou. Perdeu ${vidasTotais} ${vidasTotais === 1 ? 'vida' : 'vidas'}.`);
 
                 if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
                     const errorLanguage = currentQuestion.errorLanguage || 'português';
@@ -1510,7 +1696,7 @@ if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
             saveStats();
             updateStatsDisplay();
 
-            // Aguarda para ir para próxima pergunta
+            // Próxima pergunta
             let waitTime = 1500;
 
             if (currentQuestion.autoSpeak !== false && globalSpeechEnabled && currentQuestion.answerLanguage) {
@@ -1525,6 +1711,59 @@ if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
                 }, waitTime);
             }
         }
+        //funçao para voltar a ganhar corações a cada duas horas reinicia
+        function initializeHeartTimers() {
+            const now = Date.now();
+            const storedDayStart = parseInt(localStorage.getItem('heartsDayStart'));
+
+            const isResetTime = isNaN(storedDayStart) || (now - storedDayStart) >= 2 * 60 * 60 * 1000;
+
+            if (isResetTime) {
+                console.log("⏰ Reset de corações a cada 2 horas.");
+                localStorage.setItem('heartsEarnedToday', '0');
+                localStorage.setItem('heartsDayStart', now.toString());
+            } else {
+                console.log("⏳ Ainda não passaram 2 horas desde o último reset.");
+            }
+        }
+
+        function getHeartStatus() {
+            const now = Date.now();
+            const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
+            const heartsEarnedToday = parseInt(localStorage.getItem('heartsEarnedToday')) || 0;
+            const heartsDayStart = parseInt(localStorage.getItem('heartsDayStart')) || now;
+
+            const maxHeartsPerDay = 10;
+            const cooldownMs = 60 * 1000;
+            const resetIntervalMs = 2 * 60 * 60 * 1000;
+
+            const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
+
+            const timeLeftForNextHeart = Math.max(0, cooldownMs - (now - lastEarned));
+            const timeLeftForReset = Math.max(0, resetIntervalMs - (now - heartsDayStart));
+
+            return {
+                remainingHearts,
+                earnedToday: heartsEarnedToday,
+                canEarnNow: timeLeftForNextHeart <= 0,
+                timeUntilNextHeartMs: timeLeftForNextHeart,
+                timeUntilResetMs: timeLeftForReset
+            };
+        }
+
+
+        function mostrarStatusCoracoes() {
+            const status = getHeartStatus();
+
+            if (status.remainingHearts === 0) {
+                showFeedbackMessage("🛑 Você já ganhou os 10 corações permitidos hoje. Volte amanhã!");
+            } else if (!status.canEarnNow) {
+                showFeedbackMessage(`⏳ Aguarde ${status.timeUntilNextHeartSec}s para poder ganhar o próximo coração.`);
+            } else {
+                showFeedbackMessage(`❤️ Você pode ganhar mais ${status.remainingHearts} ${status.remainingHearts === 1 ? 'coração' : 'corações'} hoje.`);
+            }
+        }
+
         function renderLives() {
             const el = document.getElementById("livesDisplay");
             el.innerHTML = "❤️".repeat(gameStats.lives) + "🤍".repeat(5 - gameStats.lives);
@@ -1972,9 +2211,10 @@ if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
         }
 
         function updateStatsDisplay() {
-            document.getElementById('statsDisplay').innerText = `
-                ❤️ ${gameStats.lives}
-            `;
+            document.getElementById('statsDisplay').innerHTML = `
+        <span onclick="openHeartModal()" style="cursor: pointer;">❤️ ${gameStats.lives}</span>
+    `;
+
             document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
             document.getElementById('correctAnswers').textContent = gameStats.correctAnswers;
 
@@ -1982,6 +2222,7 @@ if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
                 Math.round((gameStats.correctAnswers / gameStats.totalAnswered) * 100) : 0;
             document.getElementById('accuracy').textContent = accuracy + '%';
         }
+
 
         // Keyboard Support
         document.addEventListener('keydown', function (e) {
@@ -2116,13 +2357,116 @@ if (hintsUsedThisQuestion > 0 && !dicaFoiComVida) {
         // Referência ao modal
         const editModal = document.getElementById('editModal');
 
-        // Fecha ao clicar fora do conteúdo
-        window.addEventListener('click', function (event) {
-            if (editModal.classList.contains('active') && event.target === editModal) {
-                editModal.classList.remove('active');
-            }
-        });
+        function getHeartStatus() {
+            const now = Date.now();
+            // Fornece valor padrão seguro se estiver ausente ou inválido
+            const lastEarnedRaw = localStorage.getItem('lastHeartEarnedAt');
+            const heartsEarnedTodayRaw = localStorage.getItem('heartsEarnedToday');
+            const heartsDayStartRaw = localStorage.getItem('heartsDayStart');
 
+            const lastEarned = isNaN(parseInt(lastEarnedRaw)) ? 0 : parseInt(lastEarnedRaw);
+            const heartsEarnedToday = isNaN(parseInt(heartsEarnedTodayRaw)) ? 0 : parseInt(heartsEarnedTodayRaw);
+            const heartsDayStart = isNaN(parseInt(heartsDayStartRaw)) ? now : parseInt(heartsDayStartRaw);
+
+            const maxHeartsPerDay = 10;
+            const cooldownMs = 60 * 1000; // 1 minuto
+            const resetIntervalMs = 2 * 60 * 60 * 1000; // 2 horas
+
+            const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
+
+            const timeLeftForNextHeart = Math.max(0, cooldownMs - (now - lastEarned));
+            const timeLeftForReset = Math.max(0, resetIntervalMs - (now - heartsDayStart));
+
+            return {
+                remainingHearts,
+                earnedToday: heartsEarnedToday,
+                canEarnNow: timeLeftForNextHeart <= 0,
+                timeUntilNextHeartMs: timeLeftForNextHeart,
+                timeUntilResetMs: timeLeftForReset
+            };
+        }
+
+        function openHeartModal() {
+            const modal = document.getElementById('heartModal');
+            const contentEl = document.getElementById('heartStatusContent');
+            const status = getHeartStatus();
+
+            let html = `
+                <p>❤️ Corações ganhos: <strong>${status.earnedToday}/10</strong></p>
+                <p>❤️ Restantes: <strong>${status.remainingHearts}</strong></p>
+            `;
+
+            if (status.remainingHearts === 0) {
+                html += `<p>🛑 Você atingiu o limite de 10 corações hoje. Volte amanhã!</p>`;
+            } else if (!status.canEarnNow) {
+                html += `<p>⏳ Próximo coração disponível em <strong>${status.timeUntilNextHeartSec}s</strong>.</p>`;
+            } else {
+                html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
+            }
+
+            contentEl.innerHTML = html;
+            modal.style.display = 'block';
+            updateHeartModalContent(); // Preenche de imediato
+
+            // Atualiza o conteúdo a cada segundo
+            heartInterval = setInterval(updateHeartModalContent, 1000);
+        }
+        //funçao que preenche e atualiza o openHeartModal dinamicamente
+        function updateHeartModalContent() {
+            const contentEl = document.getElementById('heartStatusContent');
+            const status = getHeartStatus();
+
+            const formatTime = (ms) => {
+                if (isNaN(ms) || ms <= 0) return '0m 0s';
+                const totalSec = Math.ceil(ms / 1000);
+                const h = Math.floor(totalSec / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                return `${h > 0 ? `${h}h ` : ''}${m}m ${s}s`;
+            };
+
+            let html = `
+            <p>❤️ Corações ganhos hoje: <strong>${status.earnedToday}/10</strong></p>
+            <p>❤️ Restantes hoje: <strong>${status.remainingHearts}</strong></p>
+            <p>🕒 Novo reset em: <strong>${formatTime(status.timeUntilResetMs)}</strong></p>
+            `;
+
+            if (!status.canEarnNow) {
+                html += `<p>⏳ Próximo coração disponível em: <strong>${formatTime(status.timeUntilNextHeartMs)}</strong></p>`;
+
+                const progressPercent = Math.floor(100 * (1 - status.timeUntilNextHeartMs / 60000));
+                html += `
+            <div style="margin-top: 10px;">
+                <div style="height: 10px; background: #ddd; border-radius: 5px;">
+                    <div style="height: 10px; width: ${progressPercent}%; background: #4caf50; border-radius: 5px;"></div>
+                </div>
+                <small>${progressPercent}% até o próximo coração</small>
+            </div>
+            `;
+            } else if (status.remainingHearts > 0) {
+                html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
+            }
+
+            contentEl.innerHTML = html;
+        }
+
+        function setupModalOutsideClick(modalId, closeFunction) {
+            const modal = document.getElementById(modalId);
+            window.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeFunction();
+                }
+            });
+        }
+
+        function closeHeartModal() {
+            document.getElementById('heartModal').style.display = 'none';
+            clearInterval(heartInterval);
+        }
+
+        // Chama isso ao carregar a página ou ao abrir o modal pela primeira vez
+        setupModalOutsideClick('heartModal', closeHeartModal);
+        setupModalOutsideClick('editModal', closeEditModal);
 
     </script>
 </body>
