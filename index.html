@@ -809,7 +809,8 @@
             position: relative;
             top: 25px;
         }
-        .aji{
+
+        .aji {
             flex: 1;
             padding: 12px 20px;
             border: none;
@@ -1725,7 +1726,7 @@
                 const vidasDicas = hintsUsedThisQuestion;
                 const vidasTotais = vidasDicas + vidasErro;
 
-                showFeedbackMessage(`❌ Você usou ${vidasDicas} dica(s) e errou. Perdeu ${vidasTotais} ${vidasTotais === 1 ? 'vida' : 'vidas'}.`);
+                // alert(`❌ Você usou ${vidasDicas} dica(s) e errou. Perdeu ${vidasTotais} ${vidasTotais === 1 ? 'vida' : 'vidas'}.`);
 
                 if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
                     const errorLanguage = currentQuestion.errorLanguage || 'português';
