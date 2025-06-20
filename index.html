@@ -49,26 +49,22 @@
             color: #4a5568;
             font-size: 2.5em;
             margin-bottom: 10px;
-
-
-
             font-size: 1.4em;
             display: flex;
             color: #4a5568;
             font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            justify-content: space-around;
+            justify-content: space-between;
             flex-direction: row;
             align-items: flex-end;
-
         }
 
         .stats {
             font-size: 0.7em;
             display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
+            justify-content: space-between;
+            margin: 0 20px;
         }
 
         .stat {
@@ -97,8 +93,8 @@
             flex: 1;
             padding: 12px 20px;
             border: none;
-            border-radius: 25px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 0 25px 25px 0;
+            background: linear-gradient(45deg, #764ba2, #667eea);
             color: white;
             font-size: 1em;
             font-weight: bold;
@@ -592,8 +588,11 @@
             }
 
             .stats {
+                display: flex;
+                margin: 0 8px;
                 flex-direction: row;
-                gap: 10px;
+                gap: 8px;
+                justify-content: space-between;
             }
 
             .global-speech-btn {
@@ -806,6 +805,22 @@
         .displayRedondo {
             display: flex;
             align-items: center;
+            justify-content: center;
+            position: relative;
+            top: 25px;
+        }
+        .aji{
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
         }
     </style>
 </head>
@@ -822,12 +837,9 @@
                 </div>
             </h1>
             <div class="stats">
-                <div class="stat">
+                <div class="stat" style="display: none;">
                     <div class="stat-value" id="totalQuestions">0</div>
                     <div class="stat-label">Perguntas</div>
-                    <!-- <button onclick="mostrarStatusCoracoes()">Ver status dos corações</button> -->
-
-
                 </div>
                 <div class="stat">
                     <div class="stat-value" id="correctAnswers">0</div>
@@ -843,7 +855,7 @@
         </div>
 
         <div class="nav-buttons">
-            <button class="nav-btn active" onclick="showGame()">🎮 Jogar</button>
+            <button class="aji nav-btn active" onclick="showGame()">🎮 Jogar</button>
             <button class="nav-btn" onclick="showAdmin()">⚙️ Gerenciar</button>
         </div>
 
@@ -2277,11 +2289,11 @@
         function updateStatsDisplay() {
             document.getElementById('statsDisplay').innerHTML = `
             <div class="displayRedondo">
-        <span onclick="openHeartModal()" style="cursor: pointer;">❤️</span>
-        <canvas id="heartTimerCanvas" width="60" height="60" style="width: 40px; height: 40px;"></canvas></div>
+            <span onclick="openHeartModal()" style="cursor: pointer;">❤️</span>
+            <canvas id="heartTimerCanvas" width="60" height="60" style="width: 40px; height: 40px;"></canvas></div>
 
 
-    `;
+            `;
 
             document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
             document.getElementById('correctAnswers').textContent = gameStats.correctAnswers;

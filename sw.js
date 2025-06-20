@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jogo-educativo-v1.6';
+const CACHE_NAME = 'jogo-educativo-v1.1';
 const BASE_PATH = '/lingua'; // Altere para o nome do seu repositório
 
 const urlsToCache = [
