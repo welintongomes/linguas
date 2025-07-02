@@ -2,7 +2,7 @@
   "name": "Jogo Educativo de Línguas",
   "short_name": "Jogo Línguas",
   "description": "Jogo educativo para aprender línguas offline",
-  "start_url": "/lingua/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",

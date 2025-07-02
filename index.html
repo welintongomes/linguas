@@ -126,12 +126,12 @@
             margin-bottom: 0px;
         }
 
-        .question-text {
-            font-size: 1.5em;
-            color: #4a5568;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
+.question-text {
+    font-size: 1.5em;
+    color: #4a5568;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
 
         .progress-bar {
             width: 100%;
@@ -546,80 +546,40 @@
             margin-top: 10px;
         }
 
+        /* css para explicaçao da resposta */
+        .explanation-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
 
+        .explanation-btn:hover {
+            background: #218838;
+        }
 
+        .explanation-display {
+            animation: slideDown 0.3s ease-out;
+        }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
             }
 
-            .header h1 {
-                font-size: 1.4em;
-            }
-
-            .nav-buttons {
-                flex-direction: row;
-            }
-
-            .nav-btn {
-                min-width: auto;
-            }
-
-            .game-area {
-                padding: 20px;
-            }
-
-            .question-text {
-                font-size: 1.2em;
-            }
-
-            .word-chip {
-                padding: 10px 15px;
-                font-size: 0.8em;
-            }
-
-            .game-buttons {
-                flex-direction: column;
-            }
-
-            .game-btn {
-                min-width: auto;
-            }
-
-            .stats {
-                display: flex;
-                margin: 0 8px;
-                flex-direction: row;
-                gap: 8px;
-                justify-content: space-between;
-            }
-
-            .global-speech-btn {
-                background: #4CAF50;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-size: 10px;
-                transition: background-color 0.3s;
-            }
-
-            .form-group label {
-                text-align: center;
-                display: block;
-                margin-bottom: 8px;
-                font-weight: bold;
-                color: #4a5568;
-            }
-
-            select {
-                font-size: 16px;
-                width: 100%;
-                text-align: center;
+            to {
+                opacity: 1;
+                max-height: 100px;
             }
         }
+
+
+
 
         /* botão de dica estilizado lampada piscando */
         #hintButton {
@@ -823,13 +783,140 @@
             transition: all 0.3s ease;
             min-width: 120px;
         }
+
+        /* css para modal explicaçao */
+        .modal-contentE {
+            top: 30%;
+            position: relative;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+
+        .explanation-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            margin-bottom: 15px;
+        }
+
+        .explanation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .audio-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .audio-btn:hover {
+            background: #218838;
+        }
+
+        .audio-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.4em;
+            }
+
+            .nav-buttons {
+                flex-direction: row;
+            }
+
+            .nav-btn {
+                min-width: auto;
+            }
+
+            .game-area {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+            }
+
+            .word-chip {
+                padding: 10px 15px;
+                font-size: 0.8em;
+            }
+
+            .game-buttons {
+                flex-direction: column;
+            }
+
+            .game-btn {
+                min-width: auto;
+            }
+
+            .stats {
+                display: flex;
+                margin: 0 8px;
+                flex-direction: row;
+                gap: 8px;
+                justify-content: space-between;
+            }
+
+            .global-speech-btn {
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .form-group label {
+                text-align: center;
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: #4a5568;
+            }
+
+            select {
+                font-size: 16px;
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯Linguas <div id="statsDisplay"></div>
+            <h1>🎯Aprender<div id="statsDisplay"></div>
                 <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div>
                 <div class="global-controls">
                     <button class="global-speech-btn" id="globalSpeechBtn" onclick="toggleGlobalSpeech()">
@@ -876,15 +963,16 @@
 
                 </div>
                 <div id="feedback" class="feedback" style="display: none;"></div>
+                <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
+                <div class="answer-area" id="answerArea"></div>
+                
                 <div class="word-bank" id="wordBank"></div>
 
-
-                <div class="answer-area" id="answerArea"></div>
                 <!-- <div id="statsDisplay"></div> -->
                 <!-- <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div> -->
 
                 <div class="game-buttons">
-                    <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
+                    
                     <button class="game-btn btn-check" id="checkBtn" onclick="checkAnswer()" disabled>✓
                         Verificar</button>
                     <button class="game-btn btn-clear" onclick="clearAnswer()">🗑️ Limpar</button>
@@ -974,6 +1062,17 @@
                         </select>
                         <input type="text" id="errorMessage" placeholder="Ex: Errado, continue tentando!"
                             value="Errou!">
+                        <label for="explanation">Explicação da Resposta:</label>
+                        <textarea id="explanation" placeholder="Explicação opcional sobre a resposta"></textarea>
+
+                        <label for="explanationLanguage">Idioma da Explicação:</label>
+                        <select id="explanationLanguage">
+                            <option value="português">Português</option>
+                            <option value="inglês">Inglês</option>
+                            <option value="espanhol">Espanhol</option>
+                            <option value="francês">Francês</option>
+                            <option value="italiano">Italiano</option>
+                        </select>
                     </div>
                 </div>
 
@@ -1001,8 +1100,8 @@
                 </div>
 
                 <div class="file-buttons">
-                    <button class="nav-btn" onclick="clearStatsOnly()">🗑️ Limpar Status</button>
-                    <button class="nav-btn" onclick="clearAllData()">🗑️ Limpar Tudo</button>
+                    <button class="nav-btn" onclick="eliminarPontuacoes()">🗑️ Limpar Status</button>
+                    <button class="nav-btn" onclick="eliminarTodasAsPerguntas()">🗑️ Limpar Tudo</button>
                 </div>
 
                 <input type="file" id="importFile" class="file-input" accept=".json" onchange="importQuestions(event)">
@@ -1090,10 +1189,42 @@
                 Adicione letras extras para aumentar a dificuldade. Sem letras extras, apenas as letras da
                 resposta aparecerão.</small>
             </div>
+            <div class="form-group">
+                <label for="editExplanation">Explicação da Resposta:</label>
+                <textarea id="editExplanation" placeholder="Explicação opcional sobre a resposta"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editExplanationLanguage">Idioma da Explicação:</label>
+                <select id="editExplanationLanguage">
+                    <option value="português">Português</option>
+                    <option value="inglês">Inglês</option>
+                    <option value="espanhol">Espanhol</option>
+                    <option value="francês">Francês</option>
+                    <option value="italiano">Italiano</option>
+                </select>
+            </div>
 
             <div class="game-buttons">
                 <button class="game-btn btn-check" onclick="saveEdit()">💾 Salvar</button>
                 <button class="game-btn btn-clear" onclick="closeEditModal()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de Explicação -->
+    <div id="explanationModal" class="modal">
+        <div class="modal-contentE">
+            <div class="modal-header">
+                <h3 class="modal-title">💡 Explicação</h3>
+                <button class="close-btn" onclick="closeExplanationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="explanationText" class="explanation-text"></div>
+                <div class="explanation-controls">
+                    <button id="playExplanationBtn" class="audio-btn" onclick="playExplanationAudio()">
+                        🔊 Ouvir Explicação
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1111,7 +1242,7 @@
     <script>
         // IndexedDB Configuration
         let db;
-        const dbName = 'LangDB';
+        const dbName = 'LinguasDB';
         const dbVersion = 1;
 
         // Game State
@@ -1123,7 +1254,7 @@
             totalQuestions: 0,
             correctAnswers: 0,
             totalAnswered: 0,
-            lives: 5 // por exemplo, começa com 3 vidas
+            lives: 4 // por exemplo, começa com 4 vidas
         };
         let editingIndex = -1;
         let globalSpeechEnabled = true; // Controle global da fala
@@ -1131,9 +1262,6 @@
         let speechQueue = 0; // Contador de falas pendentes
         let hintsUsedThisQuestion = 0;//usar dicas consome chances
         let dicaFoiComVida = false;
-
-
-
 
         // Initialize IndexedDB
         function initDB() {
@@ -1233,91 +1361,7 @@
                 updateStatsDisplay();
             };
         }
-        // Speech Functions
-        function speakText(text, language = 'pt-BR', callback = null) {
-            // Verificar se a fala global está ativada
-            if (!globalSpeechEnabled) {
-                if (callback) callback(); // Chama o callback mesmo se não falar
-                return;
-            }
 
-            if ('speechSynthesis' in window) {
-                speechQueue++; // Incrementa contador de falas
-
-                // Para mobile, precisa ser ativado por interação do usuário
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = language;
-                utterance.rate = 0.8;
-                utterance.volume = 1.0;
-
-                // Quando terminar de falar
-                utterance.onend = function () {
-                    speechQueue--; // Decrementa contador
-                    if (callback) {
-                        setTimeout(callback, 100); // Pequeno delay para garantir
-                    }
-                };
-
-                utterance.onerror = function (event) {
-                    speechQueue--; // Decrementa contador mesmo com erro
-                    if (callback) {
-                        setTimeout(callback, 100);
-                    }
-                };
-
-                // Garantir que o speechSynthesis está pronto
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-                    // Aguarda um pouco após cancelar antes de falar novamente
-                    setTimeout(() => {
-                        speechSynthesis.speak(utterance);
-                    }, 100);
-                } else {
-                    speechSynthesis.speak(utterance);
-                }
-            } else if (callback) {
-                callback(); // Chama o callback se não suportar fala
-            }
-        }
-
-        function getLanguageCode(language) {
-            const languages = {
-                'português': 'pt-BR',
-                'inglês': 'en-US',
-                'espanhol': 'es-ES',
-                'francês': 'fr-FR',
-                'italiano': 'it-IT'
-            };
-            return languages[language] || 'pt-BR';
-        }
-        //ativar desativar syntese global
-        function toggleGlobalSpeech() {
-            globalSpeechEnabled = !globalSpeechEnabled;
-
-            const btn = document.getElementById('globalSpeechBtn');
-            const status = document.getElementById('speechStatus');
-
-            if (globalSpeechEnabled) {
-                btn.classList.remove('disabled');
-                btn.innerHTML = '🔊 <span id="speechStatus">Falar</span>';
-                status.textContent = 'Fala Ativada';
-            } else {
-                btn.classList.add('disabled');
-                btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
-                status.textContent = 'Fala Desativada';
-
-                // Para qualquer fala que esteja acontecendo
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-
-                }
-                speechQueue = 0; // Reseta contador quando cancela fala global
-            }
-
-            // Salvar a preferência (opcional)
-            localStorage.setItem('globalSpeechEnabled', globalSpeechEnabled);
-            updateSpeechIndicator();
-        }
         // Game Logic
         function startGame() {
             speechQueue = 0;
@@ -1339,13 +1383,19 @@
             loadNextQuestion();
         }
 
-
         function displayQuestion() {
             hintsUsedThisQuestion = 0;
             document.getElementById('hintButton').style.display = 'inline-block';
             speechQueue = 0; // Reseta contador ao exibir nova pergunta
-            document.getElementById('questionText').innerHTML =
-                ' <button class="repeat-audio-btn" onclick="repeatQuestion()" title="Repetir pergunta">🔊</button>' + ' ' + currentQuestion.question;
+            let questionHTML = ' <button class="repeat-audio-btn" onclick="repeatQuestion()" title="Repetir pergunta">🔊</button>';
+
+            // Adiciona botão de explicação se existir
+            if (currentQuestion.explanation) {
+                questionHTML += ' <button id ="explanationbrn" class="explanation-btn" onclick="showExplanation()" title="Ver/Ouvir explicação">💡📖</button>';
+            }
+
+            questionHTML += ' ' + currentQuestion.question;
+            document.getElementById('questionText').innerHTML = questionHTML;
             // Speak the question
             if (currentQuestion.questionLanguage) {
                 setTimeout(() => {
@@ -1451,165 +1501,6 @@
             document.getElementById('checkBtn').disabled = true;
         }
 
-        function showHint() {
-            let correctAnswer;
-            if (!currentQuestion) {
-                console.warn("currentQuestion está indefinido ou null ao tentar usar uma dica.");
-                showFeedbackMessage("⚠️ Nenhuma pergunta ativa no momento.");
-                return;
-            }
-
-            if (currentQuestion.type === 'letters') {
-                correctAnswer = currentQuestion.answer.toLowerCase()
-                    .split('')
-                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
-            } else {
-                correctAnswer = currentQuestion.words;
-            }
-
-            const responseLength = correctAnswer.length;
-
-            // Cálculo do limite de dicas
-            let maxHints = 1;
-            if (responseLength >= 4 && responseLength <= 6) {
-                maxHints = 2;
-            } else if (responseLength > 6) {
-                maxHints = 3;
-            }
-
-            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion} | Vidas: ${gameStats.lives}`);
-
-            const usandoVida = gameStats.lives > 0;
-
-            // Se não tem vidas e já usou todas as dicas
-            if (!usandoVida && hintsUsedThisQuestion >= maxHints) {
-                showFeedbackMessage("🚫 Sem vidas e limite de dicas atingido.");
-                document.getElementById('hintButton').style.display = 'none';
-                return;
-            }
-
-            // Verifica ordem
-            let ordemCorreta = true;
-            for (let i = 0; i < selectedWords.length; i++) {
-                if (selectedWords[i].toLowerCase() !== correctAnswer[i].toLowerCase()) {
-                    ordemCorreta = false;
-                    break;
-                }
-            }
-
-            if (!ordemCorreta) {
-                showFeedbackMessage("❌ Ordem incorreta! Revise sua resposta.");
-                return;
-            }
-
-            if (selectedWords.length >= correctAnswer.length) {
-                showFeedbackMessage("✅ Você já completou a resposta corretamente!");
-                return;
-            }
-
-            const nextIndex = selectedWords.length;
-            const nextExpected = correctAnswer[nextIndex];
-
-            const allWordElements = document.querySelectorAll('#wordBank .word-chip');
-            let found = false;
-
-            for (let element of allWordElements) {
-                const elementText = element.textContent.toLowerCase();
-
-                if (
-                    normalizeText(elementText) === normalizeText(nextExpected) &&
-                    !element.classList.contains('selected')
-                ) {
-                    element.classList.add('hint');
-                    element.style.animation = 'pulse 1s infinite';
-
-                    setTimeout(() => {
-                        element.classList.remove('hint');
-                        element.style.animation = '';
-                    }, 3000);
-
-                    showFeedbackMessage(
-                        `💡 Dica: A próxima ${currentQuestion.type === 'letters' ? 'letra' : 'palavra'} é "${nextExpected.toUpperCase()}"`
-                    );
-
-                    // ✅ Penaliza corretamente
-                    // Sempre conta como uma dica usada
-                    hintsUsedThisQuestion++;
-                    gameStats.hintsUsed++;
-
-                    // Aplica penalidade
-                    if (usandoVida) {
-                        gameStats.lives = Math.max(0, gameStats.lives - 1);
-                        dicaFoiComVida = true;
-                        showFeedbackMessage("💡 Você usou 1 vida para receber uma dica.");
-                    } else {
-                        dicaFoiComVida = false;
-                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
-                    }
-                    const hintBtn = document.getElementById('hintButton');
-
-                    // Bloqueia por 10 segundos
-                    hintBtn.disabled = true;
-                    let secondsLeft = 10;
-
-                    hintBtn.textContent = `⏳ ${secondsLeft}s`;
-                    const hintCooldown = setInterval(() => {
-                        secondsLeft--;
-                        if (secondsLeft > 0) {
-                            hintBtn.textContent = `⏳ ${secondsLeft}s`;
-                        } else {
-                            clearInterval(hintCooldown);
-                            hintBtn.disabled = false;
-                            hintBtn.textContent = '💡';
-                        }
-                    }, 1000);
-
-
-                    // Atualiza stats primeiro
-                    gameStats.hintsUsed++;
-                    saveStats();
-                    updateStatsDisplay();
-
-                    // 🔄 Só depois anima
-                    if (usandoVida) {
-                        const heartEl = document.getElementById('statsDisplay');
-                        heartEl.classList.remove('heart-shake');
-                        requestAnimationFrame(() => {
-                            heartEl.classList.add('heart-shake');
-                            setTimeout(() => {
-                                heartEl.classList.remove('heart-shake');
-                            }, 400);
-                        });
-                    }
-                    else {
-                        dicaFoiComVida = false;
-                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
-                    }
-
-
-                    gameStats.hintsUsed++;
-                    saveStats();
-                    updateStatsDisplay();
-
-                    // Oculta apenas se não tiver vidas e acabou as dicas
-                    if (gameStats.lives === 0 && hintsUsedThisQuestion >= maxHints) {
-                        document.getElementById('hintButton').style.display = 'none';
-                    }
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                showFeedbackMessage(`⚠️ A próxima letra/palavra esperada é "${nextExpected}", mas não há botão disponível.`);
-            }
-        }
-
-
-
-
-
         function showFeedbackMessage(message) {
             const feedbackEl = document.getElementById('feedback');
             const answerArea = document.getElementById('answerArea');
@@ -1621,10 +1512,6 @@
             // Se quiser mudar estilo da área também:
             answerArea.className = 'answer-area hint';
         }
-
-
-
-
 
         function highlightHint(button) {
             button.classList.add('hint');
@@ -1663,26 +1550,16 @@
                 const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
                 const heartsEarnedToday = parseInt(localStorage.getItem('heartsEarnedToday')) || 0;
 
-                const canEarnHeart = (now - lastEarned >= 60 * 1000) && (heartsEarnedToday < 10);
+                const canEarnHeart = (now - lastEarned >= 60 * 1000) && (heartsEarnedToday < 10);//testes 1000 = 100
 
-                if (canEarnHeart && gameStats.lives < 7) {
+                if (canEarnHeart && gameStats.lives < 30) {
                     gameStats.lives += 1;
-
-                    // Animação de ganho de vida
-                    const heartEl = document.getElementById('statsDisplay');
-                    heartEl.classList.remove('heart-gain'); // reinicia se estiver animando
-                    requestAnimationFrame(() => {
-                        heartEl.classList.add('heart-gain');
-                        setTimeout(() => {
-                            heartEl.classList.remove('heart-gain');
-                        }, 600); // mesmo tempo da animação
-                    });
-
-
+                    // 💓 pulsa o coração ao ganhar vida
+                    animateHeartGain();
                     localStorage.setItem('heartsEarnedToday', (heartsEarnedToday + 1).toString());
                     localStorage.setItem('lastHeartEarnedAt', now.toString());
-                }
-                else if (heartsEarnedToday >= 10) {
+
+                } else if (heartsEarnedToday >= 10) {
                     // showFeedbackMessage("🛑 Você atingiu o limite de 10 corações hoje. Volte amanhã!");
                 } else {
                     const secondsLeft = Math.ceil((60 * 1000 - (now - lastEarned)) / 1000);
@@ -1694,7 +1571,7 @@
                     const successLanguage = currentQuestion.successLanguage || 'português';
                     setTimeout(() => {
                         speakText(successMsg, getLanguageCode(successLanguage), () => {
-                            if (currentQuestion.answerLanguage) {
+                            if (currentQuestion.answerLanguage) {//substitua este if caso queira que fale com acerto igual fala com erro
                                 setTimeout(() => {
                                     speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage));
                                 }, 300);
@@ -1710,7 +1587,7 @@
                 answerArea.className = 'answer-area incorrect';
 
                 // 🔻 Penalidade por erro fixo: -2 vidas
-                const vidasErro = Math.min(2, gameStats.lives);
+                const vidasErro = Math.min(2, gameStats.lives);//testes aumente para perder vidas
                 gameStats.lives -= vidasErro;
                 // Vibra o coração ao perder vida
                 const heartEl = document.getElementById('statsDisplay');
@@ -1734,7 +1611,14 @@
                         speakText(errorMsg, getLanguageCode(errorLanguage), () => {
                             if (currentQuestion.answerLanguage) {
                                 setTimeout(() => {
-                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage));
+                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
+                                        // Após falar a resposta, fala a explicação se existir
+                                        if (currentQuestion.explanation) {
+                                            setTimeout(() => {
+                                                speakText(currentQuestion.explanation, getLanguageCode(currentQuestion.explanationLanguage || 'português'));
+                                            }, 300);
+                                        }
+                                    });
                                 }, 300);
                             }
                         });
@@ -1757,7 +1641,7 @@
                     waitForSpeechToEnd(() => {
                         nextQuestion();
                     });
-                }, 1500);
+                }, 2000);
             } else {
                 setTimeout(() => {
                     nextQuestion();
@@ -1769,14 +1653,14 @@
             const now = Date.now();
             const storedDayStart = parseInt(localStorage.getItem('heartsDayStart'));
 
-            const isResetTime = isNaN(storedDayStart) || (now - storedDayStart) >= 2 * 60 * 60 * 1000;
+            const isResetTime = isNaN(storedDayStart) || (now - storedDayStart) >= 1 * 60 * 60 * 1000;
 
             if (isResetTime) {
-                console.log("⏰ Reset de corações a cada 2 horas.");
+                console.log("⏰ Reset de corações a cada 1 hora.");
                 localStorage.setItem('heartsEarnedToday', '0');
                 localStorage.setItem('heartsDayStart', now.toString());
             } else {
-                console.log("⏳ Ainda não passaram 2 horas desde o último reset.");
+                console.log("⏳ Ainda não passaram 1 hora desde o último reset.");
             }
         }
         // agora deu certo barra gaug para contador de proxima pergunta
@@ -1798,7 +1682,7 @@
             drawHeartTimer(status.timeUntilNextHeartMs, status.timeUntilResetMs);
         }, 1);
 
-
+        //funçao para ganhar novos coraçoes
         function getHeartStatus() {
             const now = Date.now();
             const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
@@ -1806,8 +1690,8 @@
             const heartsDayStart = parseInt(localStorage.getItem('heartsDayStart')) || now;
 
             const maxHeartsPerDay = 10;
-            const cooldownMs = 60 * 1000;
-            const resetIntervalMs = 2 * 60 * 60 * 1000;
+            const cooldownMs = 60 * 1000;//testes 1m
+            const resetIntervalMs = 1 * 60 * 60 * 1000;
 
             const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
 
@@ -1948,6 +1832,8 @@
                 successLanguage: document.getElementById('successLanguage').value,
                 errorMessage: document.getElementById('errorMessage').value.trim(),
                 errorLanguage: document.getElementById('errorLanguage').value,
+                explanation: document.getElementById('explanation').value,
+                explanationLanguage: document.getElementById('explanationLanguage').value,
                 autoSpeak: document.getElementById('autoSpeak').checked
             };
 
@@ -1990,6 +1876,8 @@
             document.getElementById('successLanguage').value = 'português';
             document.getElementById('errorLanguage').value = 'português';
             document.getElementById('autoSpeak').checked = true;
+            document.getElementById('explanation').value = '';
+            document.getElementById('explanationLanguage').value = 'português';
             toggleGameType();
         }
 
@@ -2070,6 +1958,10 @@
             document.getElementById('editErrorLanguage').value = question.errorLanguage || 'português';
             document.getElementById('editAutoSpeak').checked = question.autoSpeak !== false;
             document.getElementById('editAnswerLanguage').value = question.answerLanguage || 'inglês';
+            // document.getElementById('explanation').value = question.explanation || '';
+            // document.getElementById('explanationLanguage').value = question.explanationLanguage || 'português';
+            document.getElementById('editExplanation').value = question.explanation || '';
+            document.getElementById('editExplanationLanguage').value = question.explanationLanguage || 'português';
         }
 
         function saveEdit() {
@@ -2093,6 +1985,8 @@
                 errorMessage: document.getElementById('editErrorMessage').value.trim(),
                 errorLanguage: document.getElementById('editErrorLanguage').value,
                 autoSpeak: document.getElementById('editAutoSpeak').checked,
+                explanation: document.getElementById('editExplanation').value,
+                explanationLanguage: document.getElementById('editExplanationLanguage').value
             };
 
             if (gameType === 'letters') {
@@ -2132,29 +2026,24 @@
             }
         }
         //resetar todas as perguntas
-        function clearAllData() {
+        function eliminarTodasAsPerguntas() {
             if (confirm('Tem certeza que deseja excluir TODAS as perguntas? Esta ação não pode ser desfeita!')) {
                 const transaction = db.transaction(['questions'], 'readwrite');
-
                 transaction.objectStore('questions').clear();
 
                 transaction.oncomplete = function () {
                     questions = [];
-                    gameStats = {
-                        totalQuestions: 0
-                    };
                     updateQuestionsList();
                     alert('Todas as perguntas foram excluídos!');
                 };
             }
         }
         //reseta somente statisticas
-        function clearStatsOnly() {
+        function eliminarPontuacoes() {
             if (confirm('Tem certeza que deseja excluir TODAS estatísticas? Esta ação não pode ser desfeita!')) {
                 const transaction = db.transaction(['stats'], 'readwrite');
                 transaction.objectStore('stats').clear();
                 transaction.oncomplete = function () {
-                    questions = [];
                     gameStats = {
                         correctAnswers: 0,
                         totalAnswered: 0,
@@ -2286,7 +2175,7 @@
             gameStats.totalQuestions = questions.length;
             updateStatsDisplay();
         }
-
+        // funçao que atualiza a tela
         function updateStatsDisplay() {
             document.getElementById('statsDisplay').innerHTML = `
             <div class="displayRedondo">
@@ -2302,9 +2191,11 @@
             const accuracy = gameStats.totalAnswered > 0 ?
                 Math.round((gameStats.correctAnswers / gameStats.totalAnswered) * 100) : 0;
             document.getElementById('accuracy').textContent = accuracy + '%';
+            //verifica se nao tiver nenhuma vida nao aparece o botão de ver as dicas
         }
 
-        //funçao para contador redondo
+
+        //funçao para exibir o contador redondo
         function drawHeartTimer(msToNextHeart, msToReset) {
             const canvas = document.getElementById('heartTimerCanvas');
             if (!canvas) return;
@@ -2336,7 +2227,7 @@
             // --------------------------
             // 🕒 Círculo interno (2h)
             const radiusInner = 20;
-            const percentReset = (2 * 60 * 60 * 1000 - msToReset) / (2 * 60 * 60 * 1000);
+            const percentReset = (1 * 60 * 60 * 1000 - msToReset) / (1 * 60 * 60 * 1000);
 
             ctx.beginPath();
             ctx.arc(center, center, radiusInner, 0, 2 * Math.PI);
@@ -2489,7 +2380,7 @@
             toggleContainer.style.display = visible ? 'block' : 'none';
             toggleBtn.textContent = visible ? 'Ocultar Opções' : 'Mostrar Outras Opções';
         });
-        // Fecha o modal ao clicar fora do conteúdo
+
         // Referência ao modal
         const editModal = document.getElementById('editModal');
 
@@ -2505,8 +2396,8 @@
             const heartsDayStart = isNaN(parseInt(heartsDayStartRaw)) ? now : parseInt(heartsDayStartRaw);
 
             const maxHeartsPerDay = 10;
-            const cooldownMs = 60 * 1000; // 1 minuto
-            const resetIntervalMs = 2 * 60 * 60 * 1000; // 2 horas
+            const cooldownMs = 60 * 1000; // 1 minuto testes
+            const resetIntervalMs = 1 * 60 * 60 * 1000; // 1 hora
 
             const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
 
@@ -2562,8 +2453,8 @@
             };
 
             let html = `
-            <p>❤️ Corações ganhos hoje: <strong>${status.earnedToday}/10</strong></p>
-            <p>❤️ Restantes hoje: <strong>${status.remainingHearts}</strong></p>
+            <p>❤️ Corações já ganhos neste reset: <strong>${status.earnedToday}/10</strong></p>
+            <p>❤️ Pode ganhar: <strong>${status.remainingHearts}</strong> no reset atual</p>
             <p>🕒 Novo reset em: <strong>${formatTime(status.timeUntilResetMs)}</strong></p>
             `;
 
@@ -2588,7 +2479,367 @@
 
             contentEl.innerHTML = html;
         }
+        //dicas
+        function showHint() {
+            let correctAnswer;
+            if (!currentQuestion) {
+                console.warn("currentQuestion está indefinido ou null ao tentar usar uma dica.");
+                showFeedbackMessage("⚠️ Nenhuma pergunta ativa no momento.");
+                return;
+            }
 
+            if (currentQuestion.type === 'letters') {
+                correctAnswer = currentQuestion.answer.toLowerCase()
+                    .split('')
+                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
+            } else {
+                correctAnswer = currentQuestion.words;
+            }
+
+            const responseLength = correctAnswer.length;
+
+            // Cálculo do limite de dicas
+            let maxHints = 1;
+            if (responseLength >= 4 && responseLength <= 6) {
+                maxHints = 2;
+            } else if (responseLength > 6) {
+                maxHints = 3;
+            }
+
+            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion} | Vidas: ${gameStats.lives}`);
+
+            const usandoVida = gameStats.lives > 0;
+
+            // Se já usou todas as dicas
+            //if (hintsUsedThisQuestion >= maxHints) {
+            if (!usandoVida && hintsUsedThisQuestion >= maxHints) {
+                showFeedbackMessage("🚫 Limite de dicas atingido para esta pergunta.");
+                // document.getElementById('hintButton').style.display = 'none';
+                return;
+            }
+
+            // Verifica ordem
+            let ordemCorreta = true;
+            for (let i = 0; i < selectedWords.length; i++) {
+                if (selectedWords[i].toLowerCase() !== correctAnswer[i].toLowerCase()) {
+                    ordemCorreta = false;
+                    break;
+                }
+            }
+
+            if (!ordemCorreta) {
+                showFeedbackMessage("❌ Ordem incorreta! Revise sua resposta.");
+                return;
+            }
+
+            const userAnswer = (currentQuestion.type === 'letters')
+                ? selectedWords.join('').toLowerCase().trim()
+                : selectedWords.join(' ').toLowerCase().trim();
+
+            const correctAnswerStr = (currentQuestion.type === 'letters')
+                ? currentQuestion.answer.toLowerCase().replace(/\s+/g, '').trim()
+                : currentQuestion.answer.toLowerCase().trim();
+
+            if (userAnswer === correctAnswerStr) {
+                showFeedbackMessage("✅ Você já completou a resposta corretamente!");
+                return;
+            }
+
+            const nextIndex = selectedWords.length;
+            const nextExpected = correctAnswer[nextIndex];
+
+            const allWordElements = document.querySelectorAll('#wordBank .word-chip');
+            let found = false;
+
+            for (let element of allWordElements) {
+                const elementText = element.textContent.toLowerCase();
+
+                if (
+                    normalizeText(elementText) === normalizeText(nextExpected) &&
+                    !element.classList.contains('selected')
+                ) {
+                    element.classList.add('hint');
+                    element.style.animation = 'pulse 1s infinite';
+
+                    setTimeout(() => {
+                        element.classList.remove('hint');
+                        element.style.animation = '';
+                    }, 3000);
+
+                    showFeedbackMessage(
+                        `💡 Dica: A próxima ${currentQuestion.type === 'letters' ? 'letra' : 'palavra'} é "${nextExpected.toUpperCase()}"`
+                    );
+
+                    // ✅ Penaliza corretamente
+                    // Sempre conta como uma dica usada
+                    hintsUsedThisQuestion++;
+                    gameStats.hintsUsed++;
+
+                    // Aplica penalidade
+                    if (usandoVida) {
+                        gameStats.lives = Math.max(0, gameStats.lives - 1);//testes 1 = 0 lado direito
+                        dicaFoiComVida = true;
+                        showFeedbackMessage("💡 Você usou 1 vida para receber uma dica.");
+                    } else {
+                        dicaFoiComVida = false;
+                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
+                    }
+                    const hintBtn = document.getElementById('hintButton');
+
+                    // Bloqueia por 10 segundos
+                    hintBtn.disabled = true;
+                    let secondsLeft = 10;//testes
+
+                    hintBtn.textContent = `⏳ ${secondsLeft}s`;
+                    const hintCooldown = setInterval(() => {
+                        secondsLeft--;
+                        if (secondsLeft > 0) {
+                            hintBtn.textContent = `⏳ ${secondsLeft}s`;
+                        } else {
+                            clearInterval(hintCooldown);
+                            hintBtn.disabled = false;
+                            hintBtn.textContent = '💡';
+                        }
+                    }, 1000);//testes
+
+                    // Atualiza stats primeiro
+                    gameStats.hintsUsed++;
+                    saveStats();
+                    updateStatsDisplay();
+
+                    // 🔄 Só depois anima
+                    if (usandoVida) {
+
+                        // 💓 Vibra o coração
+                        animateHeartShake();
+                    }
+                    else {
+                        dicaFoiComVida = false;
+                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
+                    }
+
+                    gameStats.hintsUsed++;
+                    saveStats();
+                    updateStatsDisplay();
+
+                    // Oculta apenas se não tiver vidas e acabou as dicas
+                    if (gameStats.lives === 0 && hintsUsedThisQuestion >= maxHints) {
+                        document.getElementById('hintButton').style.display = 'none';
+                    }
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                showFeedbackMessage(`⚠️ A próxima letra/palavra esperada é "${nextExpected}", mas não há botão disponível.`);
+            }
+        }
+        // Speech Functions
+        function speakText(text, language = 'pt-BR', callback = null) {
+            // Verificar se a fala global está ativada
+            if (!globalSpeechEnabled) {
+                if (callback) callback(); // Chama o callback mesmo se não falar
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                speechQueue++; // Incrementa contador de falas
+
+                // Para mobile, precisa ser ativado por interação do usuário
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = language;
+                utterance.rate = 0.8;
+                utterance.volume = 1.0;
+
+                // Quando terminar de falar
+                utterance.onend = function () {
+                    speechQueue--; // Decrementa contador
+                    if (callback) {
+                        setTimeout(callback, 100); // Pequeno delay para garantir
+                    }
+                };
+
+                utterance.onerror = function (event) {
+                    speechQueue--; // Decrementa contador mesmo com erro
+                    if (callback) {
+                        setTimeout(callback, 100);
+                    }
+                };
+
+                // Garantir que o speechSynthesis está pronto
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+                    // Aguarda um pouco após cancelar antes de falar novamente
+                    setTimeout(() => {
+                        speechSynthesis.speak(utterance);
+                    }, 100);
+                } else {
+                    speechSynthesis.speak(utterance);
+                }
+            } else if (callback) {
+                callback(); // Chama o callback se não suportar fala
+            }
+        }
+
+        function getLanguageCode(language) {
+            const languages = {
+                'português': 'pt-BR',
+                'inglês': 'en-US',
+                'espanhol': 'es-ES',
+                'francês': 'fr-FR',
+                'italiano': 'it-IT'
+            };
+            return languages[language] || 'pt-BR';
+        }
+        //funçao para ativar desativar o modo de syntese global leitura automatica
+        function toggleGlobalSpeech() {
+            globalSpeechEnabled = !globalSpeechEnabled;
+
+            const btn = document.getElementById('globalSpeechBtn');
+            const status = document.getElementById('speechStatus');
+
+            if (globalSpeechEnabled) {
+                btn.classList.remove('disabled');
+                btn.innerHTML = '🔊 <span id="speechStatus">Falar</span>';
+                status.textContent = 'Fala Ativada';
+            } else {
+                btn.classList.add('disabled');
+                btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
+                status.textContent = 'Fala Desativada';
+
+                // Para qualquer fala que esteja acontecendo
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel();
+
+                }
+                speechQueue = 0; // Reseta contador quando cancela fala global
+            }
+
+            // Salvar a preferência (opcional)
+            localStorage.setItem('globalSpeechEnabled', globalSpeechEnabled);
+            updateSpeechIndicator();
+        }
+        //funçao para falar a explicaçao
+        function playExplanationAudio() {
+            if (!currentQuestion.explanation) return;
+
+            const playBtn = document.getElementById('playExplanationBtn');
+
+            // Desabilita o botão durante a reprodução
+            playBtn.disabled = false;
+            playBtn.innerHTML = '🔄 Reproduzindo...';
+
+            // Para qualquer fala anterior
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            // Fala a explicação
+            setTimeout(() => {
+                speakText(
+                    currentQuestion.explanation,
+                    getLanguageCode(currentQuestion.explanationLanguage || 'português'),
+                    () => {
+                        // Callback quando terminar de falar
+                        playBtn.disabled = false;
+                        playBtn.innerHTML = '🔊 Ouvir Explicação';
+                    }
+                );
+            }, 100);
+        }
+        //funçoes para modais
+        //funçao para o modal de explicaçao
+        function showExplanation() {
+            if (!currentQuestion || !currentQuestion.explanation) return;
+
+            // Se ainda tem vidas, consome 1
+            if (gameStats.lives > 0) {
+                gameStats.lives -= 1;//testes 1 = 0 mude este valor para subtrair algo quando usar este dica
+                hintsUsedThisQuestion++; // marca que usou uma dica
+                updateStatsDisplay();    // atualiza visualmente
+                saveStats();             // salva as vidas/dicas
+                // 💓 Vibra o coração ao usar vida para dica
+                animateHeartShake();
+
+            } else {
+                alert("Você não tem mais vidas para usar uma dica.");
+                return;
+            }
+
+            // Preenche o modal com a explicação
+            document.getElementById('explanationText').textContent = currentQuestion.explanation;
+
+            // Mostra o modal
+            document.getElementById('explanationModal').style.display = 'block';
+
+            // Reproduz a explicação por áudio se ativado
+            if (globalSpeechEnabled) {
+                setTimeout(() => {
+                    playExplanationAudio();
+                }, 500);
+            }
+        }
+
+        // Fecha o modal se clicar fora dele
+        window.onclick = function (event) {
+            const explanationModal = document.getElementById('explanationModal');
+            if (event.target === explanationModal) {
+                closeExplanationModal();
+            }
+        }
+        function closeExplanationModal() {
+            document.getElementById('explanationModal').style.display = 'none';
+
+            // Para o áudio se estiver tocando
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+        }
+
+        function closeHeartModal() {
+            document.getElementById('heartModal').style.display = 'none';
+            clearInterval(heartInterval);
+        }
+        // Adicione esta função para fechar com ESC
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const explanationModal = document.getElementById('explanationModal');
+                if (explanationModal.style.display === 'block') {
+                    closeExplanationModal();
+                }
+            }
+        });
+        //funçoes reutilizaveis
+        //coraçao vibra quando perde vidas
+        function animateHeartShake() {
+            const heartEl = document.getElementById('statsDisplay');
+            if (!heartEl) return;
+
+            heartEl.classList.remove('heart-shake'); // Reinicia o efeito se já estiver em uso
+            requestAnimationFrame(() => {
+                heartEl.classList.add('heart-shake');
+                setTimeout(() => {
+                    heartEl.classList.remove('heart-shake');
+                }, 400);
+            });
+        }
+        //pulsa ao ganhar coraçao
+        function animateHeartGain() {
+            const heartEl = document.getElementById('statsDisplay');
+            if (!heartEl) return;
+
+            heartEl.classList.remove('heart-gain'); // reinicia se estiver animando
+            requestAnimationFrame(() => {
+                heartEl.classList.add('heart-gain');
+                setTimeout(() => {
+                    heartEl.classList.remove('heart-gain');
+                }, 600); // mesma duração da animação CSS
+            });
+        }
+
+        //funçao reutilizavel para fechar modais clicando fora
         function setupModalOutsideClick(modalId, closeFunction) {
             const modal = document.getElementById(modalId);
             window.addEventListener('click', function (event) {
@@ -2597,15 +2848,10 @@
                 }
             });
         }
-
-        function closeHeartModal() {
-            document.getElementById('heartModal').style.display = 'none';
-            clearInterval(heartInterval);
-        }
-
         // Chama isso ao carregar a página ou ao abrir o modal pela primeira vez
         setupModalOutsideClick('heartModal', closeHeartModal);
         setupModalOutsideClick('editModal', closeEditModal);
+
 
     </script>
 </body>
