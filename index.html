@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Educativo</title>
+    <title>Gerenciador de Ferramentas</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4CAF50">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Jogo Línguas">
+    <meta name="apple-mobile-web-app-title" content="Sites Manager">
     <style>
         * {
             margin: 0;
@@ -22,255 +24,218 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            user-select: none;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            min-height: 200px;
+            max-height: 71.7vh;
+            overflow-y: auto;
+        }
+
+
+        .site-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 3px 3px 3px 7px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .site-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .site-card:hover::before {
+            left: 100%;
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .site-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .site-card p {
+            color: #718096;
+            margin-bottom: 15px;
+        }
+
+        .site-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-site-btn {
+            position: fixed;
+            bottom: 1%;
+            right: 5%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-site-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+        }
+
+        .fullscreen-content {
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 0px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            text-align: center;
-        }
-
-        .header h1 {
-            margin-top: -20px;
-            color: #4a5568;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-size: 1.4em;
-            display: flex;
-            color: #4a5568;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            justify-content: space-between;
-            flex-direction: row;
-            align-items: flex-end;
-        }
-
-        .stats {
-            font-size: 0.7em;
+        .fullscreen-header {
+            background: #2d3748;
+            color: white;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
-            margin: 0 20px;
+            align-items: center;
         }
 
-        .stat {
-            text-align: center;
+        .fullscreen-header h2 {
+            font-size: 1.3em;
         }
 
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
+        .close-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
             font-size: 0.9em;
-            color: #666;
         }
 
-        .nav-buttons {
-            display: flex;
-            gap: 0px;
-            margin-bottom: 0px;
-            flex-wrap: wrap;
+        .edit-btn {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
         }
 
-        .nav-btn {
+        .site-frame {
             flex: 1;
-            padding: 12px 20px;
             border: none;
-            border-radius: 25px;
-            background: linear-gradient(45deg, #764ba2, #667eea);
-            color: white;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
+            background: white;
         }
 
-        .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .nav-btn.active {
-            background: linear-gradient(45deg, #48bb78, #38a169);
-        }
-
-        .game-area {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            flex: 1;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .question-display {
-            text-align: center;
-            margin-bottom: 0px;
-        }
-
-.question-text {
-    font-size: 1.5em;
-    color: #4a5568;
-    margin-bottom: 6px;
-    line-height: 1.4;
-}
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #48bb78, #38a169);
-            transition: width 0.3s ease;
-        }
-
-        .word-bank {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-            min-height: 80px;
-            padding: 20px;
-            background: #f7fafc;
-            border-radius: 15px;
-            border: 2px dashed #cbd5e0;
-        }
-
-        .word-chip {
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            border: none;
-            font-size: 1em;
-            min-width: 45px;
-            text-align: center;
-        }
-
-        .word-chip.letter {
-            padding: 15px;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .word-chip:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .word-chip.selected {
-            background: linear-gradient(45deg, #48bb78, #38a169);
-            transform: scale(1.1);
-        }
-
-        .answer-area {
-            min-height: 100px;
-            padding: 20px;
-            background: #f7fafc;
-            border-radius: 15px;
-            border: 2px solid #e2e8f0;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .answer-area.correct {
-            border-color: #48bb78;
-            background: #f0fff4;
-        }
-
-        .answer-area.incorrect {
-            border-color: #f56565;
-            background: #fff5f5;
-        }
-
-        .game-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .game-btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
-        }
-
-        .btn-check {
-            background: linear-gradient(45deg, #48bb78, #38a169);
-            color: white;
-        }
-
-        .btn-clear {
-            background: linear-gradient(45deg, #f56565, #e53e3e);
-            color: white;
-        }
-
-        .btn-next {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .game-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .admin-panel {
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
         }
 
-        .admin-panel.active {
-            display: block;
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .form-group {
@@ -280,16 +245,17 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
             color: #4a5568;
         }
 
         .form-group input,
         .form-group textarea {
+            white-space: pre;
             width: 100%;
             padding: 12px;
             border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s ease;
         }
@@ -300,615 +266,246 @@
             border-color: #667eea;
         }
 
-        .questions-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px;
-            background: #f7fafc;
+        .form-group textarea {
+            font-size: 12px;
+            height: 156px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
         }
 
-        .question-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .question-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .question-content {
-            flex: 1;
-        }
-
-        .question-actions {
+        .form-actions {
             display: flex;
             gap: 10px;
+            justify-content: flex-end;
         }
 
-        .btn-small {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 15px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-edit {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #f56565;
-            color: white;
-        }
-
-        .btn-small:hover {
-            transform: scale(1.05);
-        }
-
-        .file-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 1.5em;
-            color: #4a5568;
-        }
-
-        .close-btn {
+        #clearSearch {
+            position: absolute;
+            left: 13.3%;
+            top: 50%;
+            transform: translateY(-50%);
             background: none;
             border: none;
-            font-size: 1.5em;
+            color: rgb(153, 153, 153);
             cursor: pointer;
-            color: #666;
-        }
-
-        .feedback {
-            text-align: center;
-            padding: 0px;
-            margin: 3px 0;
-            border-radius: 15px;
-            font-size: 0.9em;
+            display: none;
+            font-size: 32px;
             font-weight: bold;
         }
 
-        .feedback.correct {
-            background: #f0fff4;
-            color: #38a169;
-            border: 2px solid #48bb78;
-        }
-
-        .feedback.incorrect {
-            background: #fff5f5;
-            color: #e53e3e;
-            border: 2px solid #f56565;
-        }
-
-        /* css para botão de fala */
-        .global-controls {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .global-speech-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .global-speech-btn:hover {
-            background: #45a049;
-        }
-
-        .global-speech-btn.disabled {
-            background: #f44336;
-        }
-
-        .global-speech-btn.disabled:hover {
-            background: #da190b;
-        }
-
-        #autoSpeak {
-            color: red;
-        }
-
-        /*botao repetir pergunta*/
-        .repeat-audio-btn {
-            background: none;
-            border: none;
-            font-size: 16px;
-            margin-left: 10px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            opacity: 0.7;
-        }
-
-        .repeat-audio-btn:hover {
-            background-color: rgba(76, 175, 80, 0.1);
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .repeat-audio-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Opcional: Estilo quando a fala global está desativada */
-        .repeat-audio-btn.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .repeat-audio-btn.disabled:hover {
-            background-color: transparent;
-            transform: none;
-        }
-
-        /*css para barra de pesquisas de perguntas*/
         .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
+            width: 90%;
             margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+
         }
 
         #searchInput {
+            font-size: 20px;
+            position: relative;
+            left: 14%;
+            padding: 7px 5px 7px 38px;
             width: 100%;
-            padding: 10px 35px 10px 15px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .clear-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 16px;
-            color: #888;
-            display: none;
-        }
-
-        #searchInput:not(:placeholder-shown)+.clear-btn {
-            display: block;
-        }
-
-        /* personalizar o botão das frases acerto e erro */
-        #toggleContainer {
-            display: none;
-            /* Oculta tudo inicialmente */
-            margin-top: 10px;
-        }
-
-        /* css para explicaçao da resposta */
-        .explanation-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 5px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-
-        .explanation-btn:hover {
-            background: #218838;
-        }
-
-        .explanation-display {
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                max-height: 0;
-            }
-
-            to {
-                opacity: 1;
-                max-height: 100px;
-            }
-        }
-
-
-
-
-        /* botão de dica estilizado lampada piscando */
-        #hintButton {
-            /* Começa oculto */
-            /* display: none; */
-            background: none;
-            border: none;
-            font-size: 1.6rem;
-            cursor: pointer;
-            animation: glowPulse 2s infinite;
-            transition: transform 0.2s ease;
-            padding: 0.3em;
-            color: #ffc107;
-            /* amarelo-dica */
-        }
-
-        #hintButton:hover {
-            transform: scale(1.2);
-        }
-
-        @keyframes glowPulse {
-            0% {
-                opacity: 1;
-                text-shadow: 0 0 5px #ffc107, 0 0 10px #ffc107;
-            }
-
-            50% {
-                opacity: 0.5;
-                text-shadow: 0 0 2px #ffc107;
-            }
-
-            100% {
-                opacity: 1;
-                text-shadow: 0 0 5px #ffc107, 0 0 10px #ffc107;
-            }
-        }
-
-        /* para a letra piscar com a dica */
-        .word-chip.hint {
-            border: 2px solid gold;
-            animation: pulse 1s ease-in-out 3;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                background-color: inherit;
-            }
-
-            50% {
-                transform: scale(1.1);
-                background-color: yellow;
-            }
-        }
-
-        /* css para o modal de exibir estatisticas dos coraçoes */
-        #heartModal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-        }
-
-        #heartModal .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            position: relative;
-            cursor: default;
-            /* Para o conteúdo não parecer clicável */
-        }
-
-        #heartModal .close-button {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* efeito de perda de coraçoes  */
-        @keyframes shake {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            20% {
-                transform: translate(-3px, 0);
-            }
-
-            40% {
-                transform: translate(3px, 0);
-            }
-
-            60% {
-                transform: translate(-3px, 0);
-            }
-
-            80% {
-                transform: translate(3px, 0);
-            }
-
-            100% {
-                transform: translate(0, 0);
-            }
-        }
-
-        .heart-shake {
-            animation: shake 0.4s;
-        }
-
-        @keyframes heartShake {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            25% {
-                transform: translate(-3px, 0);
-            }
-
-            50% {
-                transform: translate(3px, 0);
-            }
-
-            75% {
-                transform: translate(-3px, 0);
-            }
-
-            100% {
-                transform: translate(0, 0);
-            }
-        }
-
-        .heart-shake {
-            animation: heartShake 0.4s ease-in-out;
-        }
-
-        /* coraçao brilha quando ganha vida */
-        @keyframes heartPulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.3);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .heart-gain {
-            animation: heartPulse 0.4s ease-in-out;
-        }
-
-        /* transiçao animada entre as perguntas */
-        .fade {
-            transition: opacity 0.4s ease-in-out;
-        }
-
-        .fade-out {
-            opacity: 0;
-        }
-
-        .fade-in {
-            opacity: 1;
-        }
-
-        .displayRedondo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            top: 25px;
-        }
-
-        .aji {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
-        }
-
-        /* css para modal explicaçao */
-        .modal-contentE {
-            top: 30%;
-            position: relative;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-
-        .explanation-text {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #333;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
-            margin-bottom: 15px;
-        }
-
-        .explanation-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .audio-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
+            border: 1px solid #ddd;
+        }
+
+        /* Adicionar CSS adicional para a barra moderna */
+        #searchInput:focus {
+            border-color: #74b9ff;
+            box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+        }
+
+        #clearSearch:hover {
+            color: #333;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+        }
+
+        .btnInExp {
+            width: 85%;
+            position: fixed;
+            bottom: 18px;
+            left: 12px;
             display: flex;
-            align-items: center;
-            gap: 5px;
+            z-index: 1000;
+            flex-direction: column;
         }
 
-        .audio-btn:hover {
-            background: #218838;
+        .fundo {
+            position: relative;
+            left: 15%;
         }
 
-        .audio-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
+        .search-random-btn {
+            position: fixed;
+            bottom: 0.9%;
+            right: 11%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1e90ff, #3742fa);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #offlineIndicator {
+            border-radius: 50px;
+            font-size: 12px;
+            height: 21px;
+            width: 30%;
+        }
+
 
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
 
             .header h1 {
-                font-size: 1.4em;
+                font-size: 1.5em;
             }
 
-            .nav-buttons {
-                flex-direction: row;
-            }
-
-            .nav-btn {
-                min-width: auto;
-            }
-
-            .game-area {
+            .modal-content {
                 padding: 20px;
+                width: 95%;
             }
 
-            .question-text {
-                font-size: 1.2em;
+            .search-random-btn {
+                position: fixed;
+                bottom: 42%;
+                right: 81.9%;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(45deg, #1e90ff, #3742fa);
+                border: none;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+                transition: all 0.3s ease;
+                z-index: 1000;
             }
 
-            .word-chip {
-                padding: 10px 15px;
-                font-size: 0.8em;
+
+            .add-site-btn {
+                bottom: 93%;
+                right: 4%;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
             }
 
-            .game-buttons {
+            .btnInExp {
+                width: 85%;
+                position: fixed;
+                bottom: 18px;
+                left: 12px;
+                display: flex;
+                z-index: 1000;
                 flex-direction: column;
             }
 
-            .game-btn {
-                min-width: auto;
+            .sites-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 25px;
+                min-height: 200px;
+                max-height: 78vh;
+                overflow-y: auto;
             }
 
-            .stats {
-                display: flex;
-                margin: 0 8px;
-                flex-direction: row;
-                gap: 8px;
-                justify-content: space-between;
-            }
-
-            .global-speech-btn {
-                background: #4CAF50;
-                color: white;
+            #clearSearch {
+                position: absolute;
+                left: 3%;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
                 border: none;
-                padding: 8px 16px;
-                border-radius: 20px;
+                color: rgb(153, 153, 153);
                 cursor: pointer;
-                font-size: 10px;
-                transition: background-color 0.3s;
-            }
-
-            .form-group label {
-                text-align: center;
-                display: block;
-                margin-bottom: 8px;
+                display: none;
+                font-size: 30px;
                 font-weight: bold;
-                color: #4a5568;
             }
 
-            select {
-                font-size: 16px;
-                width: 100%;
-                text-align: center;
+            .site-card {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 1px 1px 3px 61px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
             }
+
+            #searchInput {
+                font-size: 20px;
+                position: relative;
+                left: 0%;
+                padding: 7px 5px 7px 38px;
+                width: 123%;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+
+            .fundo {
+                position: relative;
+                left: 15%;
+            }
+
+            .form-group textarea {
+                font-size: 12px;
+                height: 300px;
+                font-family: 'Courier New', monospace;
+                resize: vertical;
+            }
+            .search-random-btn,
+.add-site-btn {
+    position: fixed;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Específicos de cada botão */
+.search-random-btn {
+    bottom: 42%;
+    right: 81.9%;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #1e90ff, #3742fa);
+}
+
+.add-site-btn {
+    bottom: 31.8%;
+    right: 83.1%;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #2ed573, #1eaf60);
+}
         }
     </style>
 </head>
@@ -916,1944 +513,651 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯Aprender<div id="statsDisplay"></div>
-                <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div>
-                <div class="global-controls">
-                    <button class="global-speech-btn" id="globalSpeechBtn" onclick="toggleGlobalSpeech()">
-                        🔊 <span id="speechStatus">Falar</span>
-                    </button>
-                </div>
-            </h1>
-            <div class="stats">
-                <div class="stat" style="display: none;">
-                    <div class="stat-value" id="totalQuestions">0</div>
-                    <div class="stat-label">Perguntas</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="correctAnswers">0</div>
-                    <div class="stat-label">Acertos</div>
-                </div>
-
-                <div class="stat">
-                    <div class="stat-value" id="accuracy">0%</div>
-                    <div class="stat-label">Precisão</div>
-                </div>
+            <h1>🛠️Ferramentas</h1>
+            <div id="offlineIndicator"
+                style="display: none; position: fixed; top: 0; left: 0; right: 0; background: #f39c12; color: white; text-align: center; padding: 5px; z-index: 9999;">
+                📱 Modo Offline
             </div>
-
+            <p></p>
         </div>
-
-        <div class="nav-buttons">
-            <button class="aji nav-btn active" onclick="showGame()">🎮 Jogar</button>
-            <button class="nav-btn" onclick="showAdmin()">⚙️ Gerenciar</button>
+        <div class="sites-grid" id="sitesGrid">
+            <!-- Sites serão carregados aqui -->
         </div>
-
-        <div class="game-area">
-            <!-- Área do Jogo -->
-            <div id="gamePanel">
-                <div class="question-display">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressBar"></div>
-                    </div>
-                    <div id="questionArea" class="fade fade-in">
-                        <div class="question-text" id="questionText">Clique em "Iniciar Jogo" para começar!</div>
-                        <div class="speech-indicator" id="speechIndicator"
-                            style="font-size: 12px; color: #666; margin-top: 5px;"></div>
-                    </div>
+    </div>
 
 
-                </div>
-                <div id="feedback" class="feedback" style="display: none;"></div>
-                <button id="hintButton" onclick="showHint()" title="Mostrar dica">💡</button>
-                <div class="answer-area" id="answerArea"></div>
-                
-                <div class="word-bank" id="wordBank"></div>
-
-                <!-- <div id="statsDisplay"></div> -->
-                <!-- <div id="livesDisplay" style="font-size: 1.5rem; margin-top: 5px;"></div> -->
-
-                <div class="game-buttons">
-                    
-                    <button class="game-btn btn-check" id="checkBtn" onclick="checkAnswer()" disabled>✓
-                        Verificar</button>
-                    <button class="game-btn btn-clear" onclick="clearAnswer()">🗑️ Limpar</button>
-                    <button class="game-btn btn-next" onclick="startGame()">▶️ Iniciar Jogo</button>
-                </div>
+    <div class="btnInExp">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Pesquisar sites...">
+            <button id="clearSearch">×</button>
+        </div>
+        <div class="fundo">
+            <button class="btn btn-secondary" onclick="exportSites()" style="margin-left: 10px;">Exportar Sites</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"
+                style="margin-left: 10px;">Importar Sites</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importSites(event)">
+        </div>
+        <button class="add-site-btn" onclick="openAddSiteModal()">+</button>
+        <button class="search-random-btn" onclick="startVoiceSearch()">🎤</button>
 
 
-            </div>
-
-            <!-- Painel Administrativo -->
-            <div id="adminPanel" class="admin-panel">
-                <div class="form-group">
-                    <!-- <label for="questionInput">Pergunta:</label> -->
-                    <label for="questionLanguage">Pergunta, Idioma da Pergunta:</label>
-                    <select id="questionLanguage">
-                        <option value="português">Português</option>
-                        <option value="inglês">Inglês</option>
-                        <option value="espanhol">Espanhol</option>
-                        <option value="francês">Francês</option>
-                        <option value="italiano">Italiano</option>
-                    </select>
-                    <input type="text" id="questionInput" placeholder="Digite a pergunta aqui...">
-                </div>
-
-                <div class="form-group">
-                    <!-- <label for="answerInput">Resposta:</label> -->
-                    <label for="answerLanguage">Resposta, Idioma da Resposta:</label>
-                    <select id="answerLanguage">
-                        <option value="português">Português</option>
-                        <option value="inglês">Inglês</option>
-                        <option value="espanhol">Espanhol</option>
-                        <option value="francês">Francês</option>
-                        <option value="italiano">Italiano</option>
-                    </select>
-                    <input type="text" id="answerInput" placeholder="Digite a resposta aqui...">
-
-                </div>
-                <div class="form-group">
-                    <label for="gameType">Tipo de Jogo:</label>
-                    <select id="gameType" onchange="toggleGameType()">
-                        <option value="words">Palavras</option>
-                        <option value="letters">Letras</option>
-                    </select>
-                </div>
-                <div class="form-group" id="wordsGroup">
-                    <label for="wordsInput">Palavras para escolha (separadas por vírgula):</label>
-                    <textarea id="wordsInput" rows="3" placeholder="palavra1, palavra2, palavra3, ..."></textarea>
-                </div>
-
-                <div class="form-group" id="lettersGroup" style="display: none;">
-                    <label for="lettersInput">Letras extras (opcional - separadas por vírgula):</label>
-                    <textarea id="lettersInput" rows="2" placeholder="a, b, c, x, y, z, ..."></textarea>
-                    <small style="color: #666; margin-top: 5px; display: block;">
-                        Adicione letras extras para aumentar a dificuldade. Sem letras extras, apenas as letras da
-                        resposta aparecerão.</small>
-                </div>
-
-
-                <!-- Div única que envolve todo o conteúdo a ser ocultado -->
-                <div id="toggleContainer">
+        <!-- Modal para adicionar/editar site -->
+        <div class="modal" id="siteModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Adicionar Nova Ferramenta</h2>
+                <form id="siteForm">
                     <div class="form-group">
-                        <label for="successMessage"></label>
-                        <label for="successLanguage">(opcional) Frase de Acerto, Idioma</label>
-                        <select id="successLanguage">
-                            <option value="português">Português</option>
-                            <option value="inglês">Inglês</option>
-                            <option value="espanhol">Espanhol</option>
-                            <option value="francês">Francês</option>
-                            <option value="italiano">Italiano</option>
-                        </select>
-                        <input type="text" id="successMessage" placeholder="Ex: Parabéns! Você acertou!" value="Certo!">
+                        <label for="siteName">Nome da Ferramenta:</label>
+                        <input type="text" id="siteName" required>
                     </div>
-
-                    <label>
-                        <input type="checkbox" id="autoSpeak" checked> Falar áudio das frases?
-                    </label>
-
                     <div class="form-group">
-                        <label for="errorMessage"></label>
-                        <label for="errorLanguage">(opcional) Frase de Erro, Idioma</label>
-                        <select id="errorLanguage">
-                            <option value="português">Português</option>
-                            <option value="inglês">Inglês</option>
-                            <option value="espanhol">Espanhol</option>
-                            <option value="francês">Francês</option>
-                            <option value="italiano">Italiano</option>
-                        </select>
-                        <input type="text" id="errorMessage" placeholder="Ex: Errado, continue tentando!"
-                            value="Errou!">
-                        <label for="explanation">Explicação da Resposta:</label>
-                        <textarea id="explanation" placeholder="Explicação opcional sobre a resposta"></textarea>
-
-                        <label for="explanationLanguage">Idioma da Explicação:</label>
-                        <select id="explanationLanguage">
-                            <option value="português">Português</option>
-                            <option value="inglês">Inglês</option>
-                            <option value="espanhol">Espanhol</option>
-                            <option value="francês">Francês</option>
-                            <option value="italiano">Italiano</option>
-                        </select>
+                        <label for="siteDescription">Descrição:</label>
+                        <input type="text" id="siteDescription">
                     </div>
-                </div>
-
-
-
-                <div class="game-buttons">
-                    <!-- Botão para expandir/ocultar -->
-                    <button class="game-btn btn-check" id="toggleBtn">Mostrar Outras Opções</button>
-                    <button class="game-btn btn-check" onclick="addQuestion()">➕ Adicionar</button>
-                    <button class="game-btn btn-clear" onclick="clearForm()">🧹 Limpar Campos</button>
-                </div>
-
-                <div class="form-group">
-                    <label>Perguntas Cadastradas:</label>
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Buscar perguntas..."
-                            oninput="filterQuestions()" />
-                        <span class="clear-btn" onclick="clearSearch()">✖</span>
+                    <div class="form-group">
+                        <label for="siteCode">Código HTML:</label>
+                        <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..."
+                            required></textarea>
                     </div>
-                    <div class="questions-list" id="questionsList"></div>
-                </div>
-                <div class="file-buttons">
-                    <button class="nav-btn" onclick="document.getElementById('importFile').click()">📁 Importar</button>
-                    <button class="nav-btn" onclick="exportQuestions()">💾 Exportar</button>
-                </div>
-
-                <div class="file-buttons">
-                    <button class="nav-btn" onclick="eliminarPontuacoes()">🗑️ Limpar Status</button>
-                    <button class="nav-btn" onclick="eliminarTodasAsPerguntas()">🗑️ Limpar Tudo</button>
-                </div>
-
-                <input type="file" id="importFile" class="file-input" accept=".json" onchange="importQuestions(event)">
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Modal de Edição -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Editar Pergunta</h2>
-                <button class="close-btn" onclick="closeEditModal()">&times;</button>
-            </div>
+        <!-- Overlay para exibir site em tela cheia -->
+        <div class="fullscreen-overlay" id="fullscreenOverlay">
 
-            <div class="form-group">
-                <!-- <label for="editQuestion">Pergunta:</label> -->
-                <label for="editQuestionLanguage">Pergunta, Idioma da Pergunta:</label>
-                <select id="editQuestionLanguage">
-                    <option value="português">Português</option>
-                    <option value="inglês">Inglês</option>
-                    <option value="espanhol">Espanhol</option>
-                    <option value="francês">Francês</option>
-                    <option value="italiano">Italiano</option>
-                </select>
-                <input type="text" id="editQuestion">
-            </div>
+            <div class="fullscreen-content">
+                <iframe class="site-frame" id="siteFrame" srcdoc=""></iframe>
 
-            <div class="form-group">
-                <!-- <label for="editAnswer">Resposta:</label> -->
-                <label for="editAnswerLanguage">Resposta, Idioma da Resposta:</label>
-                <select id="editAnswerLanguage">
-                    <option value="português">Português</option>
-                    <option value="inglês">Inglês</option>
-                    <option value="espanhol">Espanhol</option>
-                    <option value="francês">Francês</option>
-                    <option value="italiano">Italiano</option>
-                </select>
-                <input type="text" id="editAnswer">
-            </div>
-            <div class="form-group">
-                <label for="editSuccessMessage"></label>
-                <label for="editSuccessLanguage">(opcional)Frase de Acerto, Idioma</label>
-                <select id="editSuccessLanguage">
-                    <option value="português">Português</option>
-                    <option value="inglês">Inglês</option>
-                    <option value="espanhol">Espanhol</option>
-                    <option value="francês">Francês</option>
-                    <option value="italiano">Italiano</option>
-                </select>
-                <input type="text" id="editSuccessMessage" placeholder="Ex: Parabéns! Você acertou!">
-            </div>
-            <label>
-                <input type="checkbox" id="editAutoSpeak"> Falar áudio das frases?
-            </label>
-            <div class="form-group">
-                <label for="editErrorMessage"></label>
-                <label for="editErrorLanguage">(opcional)Frase de Erro, Idioma</label>
-                <select id="editErrorLanguage">
-                    <option value="português">Português</option>
-                    <option value="inglês">Inglês</option>
-                    <option value="espanhol">Espanhol</option>
-                    <option value="francês">Francês</option>
-                    <option value="italiano">Italiano</option>
-                </select>
-                <input type="text" id="editErrorMessage" placeholder="Ex: Errado, continue tentando!">
-            </div>
-
-            <div class="form-group">
-                <label for="editGameType">Tipo de Jogo:</label>
-                <select id="editGameType" onchange="toggleEditGameType()">
-                    <option value="words">Palavras</option>
-                    <option value="letters">Letras</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="editWordsGroup">
-                <label for="editWords">Palavras (separadas por vírgula):</label>
-                <textarea id="editWords" rows="3"></textarea>
-            </div>
-
-            <div class="form-group" id="editLettersGroup" style="display: none;">
-                <label for="editLetters">Letras extras (separadas por vírgula):</label>
-                <textarea placeholder="Ex: a, b, c" id="editLetters" rows="2"></textarea>
-                Adicione letras extras para aumentar a dificuldade. Sem letras extras, apenas as letras da
-                resposta aparecerão.</small>
-            </div>
-            <div class="form-group">
-                <label for="editExplanation">Explicação da Resposta:</label>
-                <textarea id="editExplanation" placeholder="Explicação opcional sobre a resposta"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="editExplanationLanguage">Idioma da Explicação:</label>
-                <select id="editExplanationLanguage">
-                    <option value="português">Português</option>
-                    <option value="inglês">Inglês</option>
-                    <option value="espanhol">Espanhol</option>
-                    <option value="francês">Francês</option>
-                    <option value="italiano">Italiano</option>
-                </select>
-            </div>
-
-            <div class="game-buttons">
-                <button class="game-btn btn-check" onclick="saveEdit()">💾 Salvar</button>
-                <button class="game-btn btn-clear" onclick="closeEditModal()">❌ Cancelar</button>
-            </div>
-        </div>
-    </div>
-    <!-- Modal de Explicação -->
-    <div id="explanationModal" class="modal">
-        <div class="modal-contentE">
-            <div class="modal-header">
-                <h3 class="modal-title">💡 Explicação</h3>
-                <button class="close-btn" onclick="closeExplanationModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="explanationText" class="explanation-text"></div>
-                <div class="explanation-controls">
-                    <button id="playExplanationBtn" class="audio-btn" onclick="playExplanationAudio()">
-                        🔊 Ouvir Explicação
-                    </button>
+                <div class="fullscreen-header bottom-header">
+                    <div class="left-buttons">
+                        <button class="close-btn" onclick="closeFullscreen()">Fechar</button>
+                        <button class="edit-btn" onclick="editCurrentSite()">Editar</button>
+                    </div>
+                    <h2 id="fullscreenTitle" class="title-right">Ferramenta</h2>
                 </div>
             </div>
+
         </div>
-    </div>
-    <!-- Modal de Status dos Corações -->
-    <div id="heartModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeHeartModal()">&times;</span>
-            <h2>💖 Status dos Corações</h2>
-            <div id="heartStatusContent">
-                <!-- Conteúdo dinâmico aqui -->
-            </div>
-        </div>
-    </div>
 
-    <script>
-        // IndexedDB Configuration
-        let db;
-        const dbName = 'LinguasDB';
-        const dbVersion = 1;
 
-        // Game State
-        let questions = [];
-        let currentQuestion = null;
-        let currentQuestionIndex = 0;
-        let selectedWords = [];
-        let gameStats = {
-            totalQuestions: 0,
-            correctAnswers: 0,
-            totalAnswered: 0,
-            lives: 4 // por exemplo, começa com 4 vidas
-        };
-        let editingIndex = -1;
-        let globalSpeechEnabled = true; // Controle global da fala
-        let remainingQuestions = []; //1 Array para controlar perguntas não respondidas
-        let speechQueue = 0; // Contador de falas pendentes
-        let hintsUsedThisQuestion = 0;//usar dicas consome chances
-        let dicaFoiComVida = false;
+        <script>
+            // mudando para indexedb Configuração do IndexedDB
+            const DB_NAME = 'SitesManagerDB';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'sites';
 
-        // Initialize IndexedDB
-        function initDB() {
-            const request = indexedDB.open(dbName, dbVersion);
+            async function initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-            request.onerror = function (event) {
-                console.error('Database error:', event.target.error);
-            };
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(request.result);
 
-            request.onsuccess = function (event) {
-                db = event.target.result;
-                initializeHeartTimers();
-                loadQuestions();
-                loadStats();
-            };
-
-            request.onupgradeneeded = function (event) {
-                db = event.target.result;
-
-                // Create questions store
-                if (!db.objectStoreNames.contains('questions')) {
-                    const questionsStore = db.createObjectStore('questions', { keyPath: 'id', autoIncrement: true });
-                    questionsStore.createIndex('question', 'question', { unique: false });
-                }
-
-                // Create stats store
-                if (!db.objectStoreNames.contains('stats')) {
-                    const statsStore = db.createObjectStore('stats', { keyPath: 'id' });
-                }
-            };
-        }
-
-        // Database Operations
-        function saveQuestion(question) {
-            const transaction = db.transaction(['questions'], 'readwrite');
-            const store = transaction.objectStore('questions');
-            store.add(question);
-
-            transaction.oncomplete = function () {
-                loadQuestions();
-            };
-        }
-
-        function updateQuestion(id, questionData) {
-            const transaction = db.transaction(['questions'], 'readwrite');
-            const store = transaction.objectStore('questions');
-
-            const getRequest = store.get(id);
-            getRequest.onsuccess = function () {
-                const data = getRequest.result;
-                Object.assign(data, questionData);
-
-                const putRequest = store.put(data);
-                putRequest.onsuccess = function () {
-                    loadQuestions();
-                };
-            };
-        }
-
-        function deleteQuestion(id) {
-            const transaction = db.transaction(['questions'], 'readwrite');
-            const store = transaction.objectStore('questions');
-            store.delete(id);
-
-            transaction.oncomplete = function () {
-                loadQuestions();
-            };
-        }
-
-        function loadQuestions() {
-            const transaction = db.transaction(['questions'], 'readonly');
-            const store = transaction.objectStore('questions');
-            const request = store.getAll();
-
-            request.onsuccess = function () {
-                questions = request.result;
-                updateQuestionsList();
-                updateStats();
-            };
-        }
-
-        function saveStats() {
-            const transaction = db.transaction(['stats'], 'readwrite');
-            const store = transaction.objectStore('stats');
-            store.put({ id: 'gameStats', ...gameStats });
-        }
-
-        function loadStats() {
-            const transaction = db.transaction(['stats'], 'readonly');
-            const store = transaction.objectStore('stats');
-            const request = store.get('gameStats');
-
-            request.onsuccess = function () {
-                if (request.result) {
-                    gameStats = { ...gameStats, ...request.result };
-                }
-                updateStatsDisplay();
-            };
-        }
-
-        // Game Logic
-        function startGame() {
-            speechQueue = 0;
-
-            if (questions.length === 0) {
-                alert('Adicione algumas perguntas primeiro!');
-                showAdmin();
-                return;
-            }
-
-            // Reinicia tudo
-            remainingQuestions = [...questions.map((q, index) => index)];
-            shuffleArray(remainingQuestions); // comente esta linha se quiser em ordem
-
-            currentQuestion = null;
-            currentQuestionIndex = null;
-
-            // Inicia com a primeira pergunta
-            loadNextQuestion();
-        }
-
-        function displayQuestion() {
-            hintsUsedThisQuestion = 0;
-            document.getElementById('hintButton').style.display = 'inline-block';
-            speechQueue = 0; // Reseta contador ao exibir nova pergunta
-            let questionHTML = ' <button class="repeat-audio-btn" onclick="repeatQuestion()" title="Repetir pergunta">🔊</button>';
-
-            // Adiciona botão de explicação se existir
-            if (currentQuestion.explanation) {
-                questionHTML += ' <button id ="explanationbrn" class="explanation-btn" onclick="showExplanation()" title="Ver/Ouvir explicação">💡📖</button>';
-            }
-
-            questionHTML += ' ' + currentQuestion.question;
-            document.getElementById('questionText').innerHTML = questionHTML;
-            // Speak the question
-            if (currentQuestion.questionLanguage) {
-                setTimeout(() => {
-                    speakText(currentQuestion.question, getLanguageCode(currentQuestion.questionLanguage));
-                }, 500);//2
-            }
-
-            let allItems = [];
-
-            if (currentQuestion.type === 'letters') {
-                // Generate letters for the answer
-                const answerLetters = currentQuestion.answer.toLowerCase()
-                    .split('')
-                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
-
-                // Add extra letters if provided
-                const extraLetters = currentQuestion.extraLetters || [];
-
-                // Combine and shuffle - APENAS letras da resposta + extras manuais
-                allItems = [...answerLetters, ...extraLetters];
-            } else {
-                // Use words as before
-                allItems = [...currentQuestion.words];
-            }
-
-            shuffleArray(allItems);
-
-            // Display word/letter bank
-            const wordBank = document.getElementById('wordBank');
-            wordBank.innerHTML = '';
-
-            allItems.forEach(item => {
-                const itemChip = document.createElement('button');
-                itemChip.className = currentQuestion.type === 'letters' ? 'word-chip letter' : 'word-chip';
-                itemChip.textContent = item.toUpperCase();
-                itemChip.onclick = () => selectItem(item, itemChip);
-                wordBank.appendChild(itemChip);
-            });
-
-            // Clear answer area
-            clearAnswer();
-
-            // Update progress
-            updateProgress();
-            updateSpeechIndicator();
-        }
-        function repeatQuestion() {
-            if (currentQuestion && currentQuestion.questionLanguage) {
-                // Para qualquer fala em andamento antes de repetir
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-                }
-
-                // Fala a pergunta novamente
-                setTimeout(() => {
-                    speakText(currentQuestion.question, getLanguageCode(currentQuestion.questionLanguage));
-                }, 100);
-            }
-        }
-
-        function selectItem(item, chipElement) {
-            if (chipElement.classList.contains('selected')) {
-                return;
-            }
-
-            selectedWords.push(item);
-            chipElement.classList.add('selected');
-
-            // Add to answer area
-            const answerArea = document.getElementById('answerArea');
-            const answerChip = document.createElement('button');
-            answerChip.className = currentQuestion.type === 'letters' ? 'word-chip letter' : 'word-chip';
-            answerChip.textContent = currentQuestion.type === 'letters' ? item.toUpperCase() : item;
-            answerChip.onclick = () => removeItem(item, answerChip, chipElement);
-            answerArea.appendChild(answerChip);
-
-            // Enable check button if we have items
-            document.getElementById('checkBtn').disabled = selectedWords.length === 0;
-        }
-
-        function removeItem(item, answerChip, originalChip) {
-            const index = selectedWords.indexOf(item);
-            if (index > -1) {
-                selectedWords.splice(index, 1);
-            }
-
-            answerChip.remove();
-            originalChip.classList.remove('selected');
-
-            document.getElementById('checkBtn').disabled = selectedWords.length === 0;
-        }
-
-        function clearAnswer() {
-            selectedWords = [];
-            document.getElementById('answerArea').innerHTML = '';
-            document.getElementById('answerArea').className = 'answer-area';
-
-            // Reset word chips
-            document.querySelectorAll('.word-chip.selected').forEach(chip => {
-                chip.classList.remove('selected');
-            });
-
-            document.getElementById('checkBtn').disabled = true;
-        }
-
-        function showFeedbackMessage(message) {
-            const feedbackEl = document.getElementById('feedback');
-            const answerArea = document.getElementById('answerArea');
-
-            feedbackEl.textContent = message;
-            feedbackEl.className = 'feedback hint';
-            feedbackEl.style.display = 'block';
-
-            // Se quiser mudar estilo da área também:
-            answerArea.className = 'answer-area hint';
-        }
-
-        function highlightHint(button) {
-            button.classList.add('hint');
-            setTimeout(() => {
-                button.classList.remove('hint');
-            }, 1500);
-        }
-
-        function checkAnswer() {
-            let userAnswer, correctAnswer;
-
-            if (currentQuestion.type === 'letters') {
-                userAnswer = selectedWords.join('').toLowerCase().trim();
-                correctAnswer = currentQuestion.answer.toLowerCase().replace(/\s+/g, '').trim();
-            } else {
-                userAnswer = selectedWords.join(' ').toLowerCase().trim();
-                correctAnswer = currentQuestion.answer.toLowerCase().trim();
-            }
-
-            const feedbackEl = document.getElementById('feedback');
-            const answerArea = document.getElementById('answerArea');
-
-            gameStats.totalAnswered++;
-
-            const isCorrect = (userAnswer === correctAnswer);
-
-            if (isCorrect) {
-                const successMsg = currentQuestion.successMessage || 'Correto! Muito bem!';
-                feedbackEl.textContent = `✔️ ${successMsg}: "${currentQuestion.answer}"`;
-                feedbackEl.className = 'feedback correct';
-                answerArea.className = 'answer-area correct';
-
-                gameStats.correctAnswers++;
-
-                const now = Date.now();
-                const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
-                const heartsEarnedToday = parseInt(localStorage.getItem('heartsEarnedToday')) || 0;
-
-                const canEarnHeart = (now - lastEarned >= 60 * 1000) && (heartsEarnedToday < 10);//testes 1000 = 100
-
-                if (canEarnHeart && gameStats.lives < 30) {
-                    gameStats.lives += 1;
-                    // 💓 pulsa o coração ao ganhar vida
-                    animateHeartGain();
-                    localStorage.setItem('heartsEarnedToday', (heartsEarnedToday + 1).toString());
-                    localStorage.setItem('lastHeartEarnedAt', now.toString());
-
-                } else if (heartsEarnedToday >= 10) {
-                    // showFeedbackMessage("🛑 Você atingiu o limite de 10 corações hoje. Volte amanhã!");
-                } else {
-                    const secondsLeft = Math.ceil((60 * 1000 - (now - lastEarned)) / 1000);
-                    // showFeedbackMessage(`⏳ Aguarde ${secondsLeft}s para poder ganhar outro coração.`);
-                }
-
-
-                if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
-                    const successLanguage = currentQuestion.successLanguage || 'português';
-                    setTimeout(() => {
-                        speakText(successMsg, getLanguageCode(successLanguage), () => {
-                            if (currentQuestion.answerLanguage) {//substitua este if caso queira que fale com acerto igual fala com erro
-                                setTimeout(() => {
-                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage));
-                                }, 300);
-                            }
-                        });
-                    }, 300);
-                }
-
-            } else {
-                const errorMsg = currentQuestion.errorMessage || 'Incorreto! A resposta era';
-                feedbackEl.textContent = `❌ ${errorMsg}: "${currentQuestion.answer}"`;
-                feedbackEl.className = 'feedback incorrect';
-                answerArea.className = 'answer-area incorrect';
-
-                // 🔻 Penalidade por erro fixo: -2 vidas
-                const vidasErro = Math.min(2, gameStats.lives);//testes aumente para perder vidas
-                gameStats.lives -= vidasErro;
-                // Vibra o coração ao perder vida
-                const heartEl = document.getElementById('statsDisplay');
-                heartEl.classList.add('heart-shake');
-
-                // Remove o efeito após a animação para poder reutilizar depois
-                setTimeout(() => {
-                    heartEl.classList.remove('heart-shake');
-                }, 400);
-
-
-                // 🔻 Penalidade total = dicas usadas + erro
-                const vidasDicas = hintsUsedThisQuestion;
-                const vidasTotais = vidasDicas + vidasErro;
-
-                // alert(`❌ Você usou ${vidasDicas} dica(s) e errou. Perdeu ${vidasTotais} ${vidasTotais === 1 ? 'vida' : 'vidas'}.`);
-
-                if (currentQuestion.autoSpeak !== false && globalSpeechEnabled) {
-                    const errorLanguage = currentQuestion.errorLanguage || 'português';
-                    setTimeout(() => {
-                        speakText(errorMsg, getLanguageCode(errorLanguage), () => {
-                            if (currentQuestion.answerLanguage) {
-                                setTimeout(() => {
-                                    speakText(currentQuestion.answer, getLanguageCode(currentQuestion.answerLanguage), () => {
-                                        // Após falar a resposta, fala a explicação se existir
-                                        if (currentQuestion.explanation) {
-                                            setTimeout(() => {
-                                                speakText(currentQuestion.explanation, getLanguageCode(currentQuestion.explanationLanguage || 'português'));
-                                            }, 300);
-                                        }
-                                    });
-                                }, 300);
-                            }
-                        });
-                    }, 300);
-                }
-            }
-
-            feedbackEl.style.display = 'block';
-            document.getElementById('checkBtn').disabled = true;
-
-            // Atualiza e salva as estatísticas
-            saveStats();
-            updateStatsDisplay();
-
-            // Próxima pergunta
-            let waitTime = 1500;
-
-            if (currentQuestion.autoSpeak !== false && globalSpeechEnabled && currentQuestion.answerLanguage) {
-                setTimeout(() => {
-                    waitForSpeechToEnd(() => {
-                        nextQuestion();
-                    });
-                }, 2000);
-            } else {
-                setTimeout(() => {
-                    nextQuestion();
-                }, waitTime);
-            }
-        }
-        //funçao para voltar a ganhar corações a cada duas horas reinicia
-        function initializeHeartTimers() {
-            const now = Date.now();
-            const storedDayStart = parseInt(localStorage.getItem('heartsDayStart'));
-
-            const isResetTime = isNaN(storedDayStart) || (now - storedDayStart) >= 1 * 60 * 60 * 1000;
-
-            if (isResetTime) {
-                console.log("⏰ Reset de corações a cada 1 hora.");
-                localStorage.setItem('heartsEarnedToday', '0');
-                localStorage.setItem('heartsDayStart', now.toString());
-            } else {
-                console.log("⏳ Ainda não passaram 1 hora desde o último reset.");
-            }
-        }
-        // agora deu certo barra gaug para contador de proxima pergunta
-        setInterval(() => {
-            const status = getHeartStatus(); // já usada no modal
-
-            // Atualiza o canvas (mesmo fora do modal)
-            drawHeartTimer(status.timeUntilNextHeartMs);
-
-            // Se quiser atualizar a barra também:
-            const progressPercent = Math.floor(100 * (1 - status.timeUntilNextHeartMs / 60000));
-            const progressBar = document.querySelector('#heartInterval');
-            if (progressBar) progressBar.style.width = `${progressPercent}%`;
-
-        }, 1000);
-
-        setInterval(() => {
-            const status = getHeartStatus();
-            drawHeartTimer(status.timeUntilNextHeartMs, status.timeUntilResetMs);
-        }, 1);
-
-        //funçao para ganhar novos coraçoes
-        function getHeartStatus() {
-            const now = Date.now();
-            const lastEarned = parseInt(localStorage.getItem('lastHeartEarnedAt')) || 0;
-            const heartsEarnedToday = parseInt(localStorage.getItem('heartsEarnedToday')) || 0;
-            const heartsDayStart = parseInt(localStorage.getItem('heartsDayStart')) || now;
-
-            const maxHeartsPerDay = 10;
-            const cooldownMs = 60 * 1000;//testes 1m
-            const resetIntervalMs = 1 * 60 * 60 * 1000;
-
-            const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
-
-            const timeLeftForNextHeart = Math.max(0, cooldownMs - (now - lastEarned));
-            const timeLeftForReset = Math.max(0, resetIntervalMs - (now - heartsDayStart));
-
-            return {
-                remainingHearts,
-                earnedToday: heartsEarnedToday,
-                canEarnNow: timeLeftForNextHeart <= 0,
-                timeUntilNextHeartMs: timeLeftForNextHeart,
-                timeUntilResetMs: timeLeftForReset
-            };
-        }
-
-
-        function mostrarStatusCoracoes() {
-            const status = getHeartStatus();
-
-            if (status.remainingHearts === 0) {
-                showFeedbackMessage("🛑 Você já ganhou os 10 corações permitidos hoje. Volte amanhã!");
-            } else if (!status.canEarnNow) {
-                showFeedbackMessage(`⏳ Aguarde ${status.timeUntilNextHeartSec}s para poder ganhar o próximo coração.`);
-            } else {
-                showFeedbackMessage(`❤️ Você pode ganhar mais ${status.remainingHearts} ${status.remainingHearts === 1 ? 'coração' : 'corações'} hoje.`);
-            }
-        }
-
-        function waitForSpeechToEnd(callback) {
-            // Verifica se ainda há falas pendentes ou se o speechSynthesis ainda está falando
-            if (speechQueue > 0 || speechSynthesis.speaking) {
-                // Se ainda há falas pendentes, verifica novamente em 200ms
-                setTimeout(() => {
-                    waitForSpeechToEnd(callback);
-                }, 200);
-            } else {
-                // Aguarda mais tempo para garantir que todas as falas realmente terminaram
-                setTimeout(() => {
-                    // Verifica novamente após a pausa maior
-                    if (speechQueue === 0 && !speechSynthesis.speaking) {
-                        callback();
-                    } else {
-                        // Se ainda está falando, continua verificando
-                        waitForSpeechToEnd(callback);
-                    }
-                }, 800); // Aumentou significativamente o tempo de espera
-            }
-        }
-        function loadNextQuestion() {
-            speechQueue = 0;
-
-            // Verifica se acabou
-            if (remainingQuestions.length === 0) {
-                document.getElementById('questionText').textContent = '🎉 Parabéns! Você completou todas as perguntas!';
-                document.getElementById('wordBank').innerHTML = '';
-                document.getElementById('answerArea').innerHTML = '';
-                document.getElementById('feedback').style.display = 'none';
-                document.getElementById('checkBtn').disabled = true;
-
-                setTimeout(() => {
-                    if (confirm('Quer jogar novamente?')) {
-                        startGame();
-                    }
-                }, 2000);
-
-                return;
-            }
-            const area = document.getElementById('questionArea');
-            area.classList.remove('fade-in');
-            area.classList.add('fade-out');
-
-            setTimeout(() => {
-                // Atualiza pergunta aqui
-                currentQuestionIndex = remainingQuestions.shift();
-                currentQuestion = questions[currentQuestionIndex];
-
-                displayQuestion();
-                document.getElementById('feedback').style.display = 'none';
-                area.classList.remove('fade-out');
-                area.classList.add('fade-in');
-            }, 400); // mesmo tempo do CSS
-
-
-
-        }
-
-        function nextQuestion() {
-            loadNextQuestion();
-        }
-
-
-        // Admin Functions
-        function toggleGameType() {
-            const gameType = document.getElementById('gameType').value;
-            const wordsGroup = document.getElementById('wordsGroup');
-            const lettersGroup = document.getElementById('lettersGroup');
-
-            if (gameType === 'letters') {
-                wordsGroup.style.display = 'none';
-                lettersGroup.style.display = 'block';
-            } else {
-                wordsGroup.style.display = 'block';
-                lettersGroup.style.display = 'none';
-            }
-        }
-
-        function toggleEditGameType() {
-            const gameType = document.getElementById('editGameType').value;
-            const wordsGroup = document.getElementById('editWordsGroup');
-            const lettersGroup = document.getElementById('editLettersGroup');
-
-            if (gameType === 'letters') {
-                wordsGroup.style.display = 'none';
-                lettersGroup.style.display = 'block';
-            } else {
-                wordsGroup.style.display = 'block';
-                lettersGroup.style.display = 'none';
-            }
-        }
-
-        function addQuestion() {
-            const question = document.getElementById('questionInput').value.trim();
-            const answer = document.getElementById('answerInput').value.trim();
-            const gameType = document.getElementById('gameType').value;
-
-            if (!question || !answer) {
-                alert('Por favor, preencha a pergunta e a resposta!');
-                return;
-            }
-
-            let questionObj = {
-                question: question,
-                answer: answer,
-                type: gameType,
-                questionLanguage: document.getElementById('questionLanguage').value,
-                answerLanguage: document.getElementById('answerLanguage').value,
-                successMessage: document.getElementById('successMessage').value.trim(),
-                successLanguage: document.getElementById('successLanguage').value,
-                errorMessage: document.getElementById('errorMessage').value.trim(),
-                errorLanguage: document.getElementById('errorLanguage').value,
-                explanation: document.getElementById('explanation').value,
-                explanationLanguage: document.getElementById('explanationLanguage').value,
-                autoSpeak: document.getElementById('autoSpeak').checked
-            };
-
-            if (gameType === 'letters') {
-                const lettersInput = document.getElementById('lettersInput').value.trim();
-                const extraLetters = lettersInput ?
-                    lettersInput.split(',').map(letter => letter.trim().toLowerCase()).filter(letter => letter) : [];
-
-                questionObj.extraLetters = extraLetters;
-            } else {
-                const wordsInput = document.getElementById('wordsInput').value.trim();
-                const words = wordsInput ?
-                    wordsInput.split(',').map(word => word.trim()).filter(word => word) : [];
-
-                // Add answer words to word bank if not present
-                const answerWords = answer.split(' ').filter(word => word.trim());
-                answerWords.forEach(word => {
-                    if (!words.includes(word)) {
-                        words.push(word);
-                    }
-                });
-
-                questionObj.words = words;
-            }
-
-            saveQuestion(questionObj);
-            clearForm();
-        }
-
-        function clearForm() {
-            document.getElementById('questionInput').value = '';
-            document.getElementById('answerInput').value = '';
-            document.getElementById('wordsInput').value = '';
-            document.getElementById('lettersInput').value = '';
-            document.getElementById('gameType').value = 'words';
-            document.getElementById('questionLanguage').value = 'português';
-            document.getElementById('answerLanguage').value = 'inglês';
-            document.getElementById('successMessage').value = '';
-            document.getElementById('errorMessage').value = '';
-            document.getElementById('successLanguage').value = 'português';
-            document.getElementById('errorLanguage').value = 'português';
-            document.getElementById('autoSpeak').checked = true;
-            document.getElementById('explanation').value = '';
-            document.getElementById('explanationLanguage').value = 'português';
-            toggleGameType();
-        }
-
-        function updateQuestionsList(filtered = questions) {
-            const list = document.getElementById('questionsList');
-            list.innerHTML = '';
-
-            filtered.forEach((q, index) => {
-                const item = document.createElement('div');
-                item.className = 'question-item';
-
-                const typeIcon = q.type === 'letters' ? '🔤' : '📝';
-                const autoSpeakIcon = q.autoSpeak !== false ? '🔊' : '🔇';
-                const extraInfo = q.type === 'letters' ?
-                    (q.extraLetters && q.extraLetters.length > 0 ?
-                        `<small><strong>Letras extras:</strong> ${q.extraLetters.join(', ')}</small>` :
-                        '<small><strong>Tipo:</strong> Apenas letras da resposta</small>') :
-                    `<small><strong>Palavras:</strong> ${q.words.join(', ')}</small>`;
-
-                item.innerHTML = `
-            <div class="question-content">
-                ${typeIcon} <strong>P:</strong> ${q.question}<br>
-                <strong>R:</strong> ${q.answer}<br>
-                ${autoSpeakIcon} <strong>Fala:</strong> ${q.autoSpeak !== false ? 'Ativada' : 'Desativada'} ${!globalSpeechEnabled ? '(Global: OFF)' : ''}<br>
-                ${extraInfo}
-            </div>
-            <div class="question-actions">
-                <button class="btn-small btn-edit" onclick="editQuestion(${q.id})">✏️</button>
-                <button class="btn-small btn-delete" onclick="deleteQuestionConfirm(${q.id})">🗑️</button>
-            </div>
-        `;
-
-                list.appendChild(item);
-            });
-        }
-
-
-        function filterQuestions() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredQuestions = questions.filter(q =>
-                q.question.toLowerCase().includes(searchTerm) ||
-                q.answer.toLowerCase().includes(searchTerm)
-            );
-            updateQuestionsList(filteredQuestions);
-        }
-
-        function clearSearch() {
-            const input = document.getElementById('searchInput');
-            input.value = '';
-            filterQuestions(); // Atualiza a lista após limpar
-            input.focus();
-        }
-
-
-        function editQuestion(id) {
-            const question = questions.find(q => q.id === id);
-            if (!question) return;
-
-            editingIndex = id;
-            document.getElementById('editQuestion').value = question.question;
-            document.getElementById('editAnswer').value = question.answer;
-
-            // Set game type
-            document.getElementById('editGameType').value = question.type || 'words';
-            toggleEditGameType();
-
-            if (question.type === 'letters') {
-                document.getElementById('editLetters').value = (question.extraLetters || []).join(', ');
-            } else {
-                document.getElementById('editWords').value = (question.words || []).join(', ');
-            }
-
-            document.getElementById('editModal').classList.add('active');
-            document.getElementById('editQuestionLanguage').value = question.questionLanguage || 'português';
-            document.getElementById('editSuccessMessage').value = question.successMessage || '';
-            document.getElementById('editSuccessLanguage').value = question.successLanguage || 'português';
-            document.getElementById('editErrorMessage').value = question.errorMessage || '';
-            document.getElementById('editErrorLanguage').value = question.errorLanguage || 'português';
-            document.getElementById('editAutoSpeak').checked = question.autoSpeak !== false;
-            document.getElementById('editAnswerLanguage').value = question.answerLanguage || 'inglês';
-            // document.getElementById('explanation').value = question.explanation || '';
-            // document.getElementById('explanationLanguage').value = question.explanationLanguage || 'português';
-            document.getElementById('editExplanation').value = question.explanation || '';
-            document.getElementById('editExplanationLanguage').value = question.explanationLanguage || 'português';
-        }
-
-        function saveEdit() {
-            const question = document.getElementById('editQuestion').value.trim();
-            const answer = document.getElementById('editAnswer').value.trim();
-            const gameType = document.getElementById('editGameType').value;
-
-            if (!question || !answer) {
-                alert('Por favor, preencha a pergunta e a resposta!');
-                return;
-            }
-
-            let questionData = {
-                question: question,
-                answer: answer,
-                type: gameType,
-                questionLanguage: document.getElementById('editQuestionLanguage').value,
-                answerLanguage: document.getElementById('editAnswerLanguage').value,
-                successMessage: document.getElementById('editSuccessMessage').value.trim(),
-                successLanguage: document.getElementById('editSuccessLanguage').value,
-                errorMessage: document.getElementById('editErrorMessage').value.trim(),
-                errorLanguage: document.getElementById('editErrorLanguage').value,
-                autoSpeak: document.getElementById('editAutoSpeak').checked,
-                explanation: document.getElementById('editExplanation').value,
-                explanationLanguage: document.getElementById('editExplanationLanguage').value
-            };
-
-            if (gameType === 'letters') {
-                const lettersInput = document.getElementById('editLetters').value.trim();
-                const extraLetters = lettersInput ?
-                    lettersInput.split(',').map(letter => letter.trim().toLowerCase()).filter(letter => letter) : [];
-
-                questionData.extraLetters = extraLetters;
-            } else {
-                const wordsInput = document.getElementById('editWords').value.trim();
-                const words = wordsInput ?
-                    wordsInput.split(',').map(word => word.trim()).filter(word => word) : [];
-
-                // Add answer words to word bank if not present
-                const answerWords = answer.split(' ').filter(word => word.trim());
-                answerWords.forEach(word => {
-                    if (!words.includes(word)) {
-                        words.push(word);
-                    }
-                });
-
-                questionData.words = words;
-            }
-
-            updateQuestion(editingIndex, questionData);
-            closeEditModal();
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            editingIndex = -1;
-        }
-
-        function deleteQuestionConfirm(id) {
-            if (confirm('Tem certeza que deseja excluir esta pergunta?')) {
-                deleteQuestion(id);
-            }
-        }
-        //resetar todas as perguntas
-        function eliminarTodasAsPerguntas() {
-            if (confirm('Tem certeza que deseja excluir TODAS as perguntas? Esta ação não pode ser desfeita!')) {
-                const transaction = db.transaction(['questions'], 'readwrite');
-                transaction.objectStore('questions').clear();
-
-                transaction.oncomplete = function () {
-                    questions = [];
-                    updateQuestionsList();
-                    alert('Todas as perguntas foram excluídos!');
-                };
-            }
-        }
-        //reseta somente statisticas
-        function eliminarPontuacoes() {
-            if (confirm('Tem certeza que deseja excluir TODAS estatísticas? Esta ação não pode ser desfeita!')) {
-                const transaction = db.transaction(['stats'], 'readwrite');
-                transaction.objectStore('stats').clear();
-                transaction.oncomplete = function () {
-                    gameStats = {
-                        correctAnswers: 0,
-                        totalAnswered: 0,
-                        lives: 3 // por exemplo, começa com 3 vidas
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        }
                     };
-                    updateStatsDisplay();
-                    alert('Todos os status excluídos!');
-                };
+                });
             }
-        }
+            //variaveis globais
+            let sites = [];
+            let currentSiteIndex = -1;
+            let editingIndex = -1;
 
-        // Import/Export Functions
-        function exportQuestions() {
-            if (questions.length === 0) {
-                alert('Não há perguntas para exportar!');
-                return;
-            }
-
-            const data = {
-                questions: questions,
-                stats: gameStats,
-                exportDate: new Date().toISOString()
-            };
-
-            const jsonStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `jogo_educativo_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function importQuestions(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
+            // Carregar sites do armazenamento ou criar site exemplo
+            async function loadSites() {
                 try {
-                    const data = JSON.parse(e.target.result);
-
-                    if (!data.questions || !Array.isArray(data.questions)) {
-                        alert('Arquivo inválido! Certifique-se de que é um arquivo de exportação válido.');
-                        return;
-                    }
-
-                    if (confirm(`Importar ${data.questions.length} perguntas? Isso adicionará às perguntas existentes.`)) {
-                        // Import questions
-                        const transaction = db.transaction(['questions'], 'readwrite');
-                        const store = transaction.objectStore('questions');
-
-                        data.questions.forEach(question => {
-                            // Remove id to avoid conflicts
-                            const { id, ...questionData } = question;
-                            store.add(questionData);
-                        });
-
-                        transaction.oncomplete = function () {
-                            loadQuestions();
-                            alert('Perguntas importadas com sucesso!');
-                        };
-                    }
-                } catch (error) {
-                    alert('Erro ao ler o arquivo! Certifique-se de que é um arquivo JSON válido.');
-                    console.error('Import error:', error);
-                }
-            };
-            reader.readAsText(file);
-
-            // Clear the input
-            event.target.value = '';
-        }
-
-        // Navigation Functions
-        function showGame() {
-            document.getElementById('gamePanel').style.display = 'block';
-            document.getElementById('adminPanel').classList.remove('active');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.nav-btn')[0].classList.add('active');
-        }
-
-        function showAdmin() {
-            document.getElementById('gamePanel').style.display = 'none';
-            document.getElementById('adminPanel').classList.add('active');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.nav-btn')[1].classList.add('active');
-        }
-
-        // Utility Functions
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-        function updateSpeechIndicator() {
-            const indicator = document.getElementById('speechIndicator');
-            if (indicator) {
-                if (!globalSpeechEnabled) {
-                    indicator.textContent = '🔇 Fala global desativada';
-                    indicator.style.color = '#f44336';
-                } else if (currentQuestion && currentQuestion.autoSpeak === false) {
-                    indicator.textContent = '🔇 Fala desta pergunta desativada';
-                    indicator.style.color = '#ff9800';
-                } else {
-                    indicator.textContent = '';
-                }
-            }
-
-        }
-        function updateProgress() {
-            if (questions.length === 0) return;
-
-            const totalQuestions = questions.length;
-            const questionsAnswered = totalQuestions - remainingQuestions.length;
-            const progress = (questionsAnswered / totalQuestions) * 100;
-
-            document.getElementById('progressBar').style.width = progress + '%';
-        }//4
-
-        function updateStats() {
-            gameStats.totalQuestions = questions.length;
-            updateStatsDisplay();
-        }
-        // funçao que atualiza a tela
-        function updateStatsDisplay() {
-            document.getElementById('statsDisplay').innerHTML = `
-            <div class="displayRedondo">
-            <span onclick="openHeartModal()" style="cursor: pointer;">❤️</span>
-            <canvas id="heartTimerCanvas" width="60" height="60" style="width: 40px; height: 40px;"></canvas></div>
-
-
-            `;
-
-            document.getElementById('totalQuestions').textContent = gameStats.totalQuestions;
-            document.getElementById('correctAnswers').textContent = gameStats.correctAnswers;
-
-            const accuracy = gameStats.totalAnswered > 0 ?
-                Math.round((gameStats.correctAnswers / gameStats.totalAnswered) * 100) : 0;
-            document.getElementById('accuracy').textContent = accuracy + '%';
-            //verifica se nao tiver nenhuma vida nao aparece o botão de ver as dicas
-        }
-
-
-        //funçao para exibir o contador redondo
-        function drawHeartTimer(msToNextHeart, msToReset) {
-            const canvas = document.getElementById('heartTimerCanvas');
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            const center = width / 2;
-
-            ctx.clearRect(0, 0, width, height);
-
-            // --------------------------
-            // 🔄 Círculo externo (1 min)
-            const radiusOuter = 28;
-            const percentNext = (60000 - msToNextHeart) / 60000;
-
-            ctx.beginPath();
-            ctx.arc(center, center, radiusOuter, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(center, center, radiusOuter, -0.5 * Math.PI, (2 * Math.PI * percentNext) - 0.5 * Math.PI);
-            ctx.strokeStyle = '#4caf50';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            // --------------------------
-            // 🕒 Círculo interno (2h)
-            const radiusInner = 20;
-            const percentReset = (1 * 60 * 60 * 1000 - msToReset) / (1 * 60 * 60 * 1000);
-
-            ctx.beginPath();
-            ctx.arc(center, center, radiusInner, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#eee';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(center, center, radiusInner, -0.5 * Math.PI, (2 * Math.PI * percentReset) - 0.5 * Math.PI);
-            ctx.strokeStyle = '#ff9800'; // cor do reset diário
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            // --------------------------
-            // ❤️ Número de vidas
-            ctx.fillStyle = '#000';
-            ctx.font = 'bold 16px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(gameStats.lives, center, center);
-        }
-
-
-        // Keyboard Support
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !document.getElementById('checkBtn').disabled) {
-                checkAnswer();
-            } else if (e.key === 'Escape') {
-                clearAnswer();
-            }
-        });
-
-        function normalizeText(text) {
-            return text
-                .toLowerCase()
-                .normalize("NFD") // remove acentos
-                .replace(/[\u0300-\u036f]/g, "") // remove diacríticos
-                .replace(/[.,!?;:]/g, "") // remove pontuação
-                .trim();
-        }
-
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', function () {
-            // Carregar preferência de fala global
-            const savedSpeechPref = localStorage.getItem('globalSpeechEnabled');
-            if (savedSpeechPref !== null) {
-                globalSpeechEnabled = savedSpeechPref === 'true';
-
-                // Atualizar o botão
-                const btn = document.getElementById('globalSpeechBtn');
-                const status = document.getElementById('speechStatus');
-
-                if (!globalSpeechEnabled) {
-                    btn.classList.add('disabled');
-                    btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
-                }
-            }
-            initDB();
-
-            // Add some sample questions if none exist
-            setTimeout(() => {
-                if (questions.length === 0) {
-                    const sampleQuestions = [
-                        {
-                            "question": "Como se diz 'olá' em inglês?",
-                            "answer": "hello",
-                            "type": "words",
-                            "words": [
-                                "hello",
-                                "please",
-                                "thank",
-                                "you"
-                            ],
-                            "id": 1,
-                            "questionLanguage": "português",
-                            "answerLanguage": "inglês",
-                            "successMessage": "parabéns, acertou!",
-                            "successLanguage": "português",
-                            "errorMessage": "Errou, continue tentando!",
-                            "errorLanguage": "português",
-                            "autoSpeak": true
-                        }, {
-                            "question": "Forme a palavra: 'GATO' em inglês",
-                            "answer": "cat",
-                            "type": "letters",
-                            "extraLetters": [],
-                            "id": 2,
-                            "questionLanguage": "português",
-                            "answerLanguage": "inglês",
-                            "successMessage": "parabéns, acertou!",
-                            "successLanguage": "português",
-                            "errorMessage": "Errado, Continue Tentando!",
-                            "errorLanguage": "português",
-                            "autoSpeak": true
-                        }
-                    ];
-
-                    const transaction = db.transaction(['questions'], 'readwrite');
-                    const store = transaction.objectStore('questions');
-
-                    sampleQuestions.forEach(question => {
-                        store.add(question);
-                    });
-
-                    transaction.oncomplete = function () {
-                        loadQuestions();
-                    };
-                }
-            }, 1000);
-        });
-
-        // Service Worker Registration for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/lingua/sw.js').then(function (registration) {
-                    console.log('ServiceWorker registration successful');
-                }).catch(function (err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-
-        // Add loading indicator
-        function showLoading() {
-            document.body.style.cursor = 'wait';
-        }
-
-        function hideLoading() {
-            document.body.style.cursor = 'default';
-        }
-
-        // Enhanced error handling
-        window.addEventListener('error', function (e) {
-            console.error('Application error:', e.error);
-            alert('Ocorreu um erro inesperado. Tente recarregar a página.');
-        });
-
-        // Database error handling
-        window.addEventListener('unhandledrejection', function (e) {
-            console.error('Unhandled promise rejection:', e.reason);
-            alert('Erro de banco de dados. Verifique se o navegador suporta IndexedDB.');
-        });
-        const toggleBtn = document.getElementById('toggleBtn');
-        const toggleContainer = document.getElementById('toggleContainer');
-
-        let visible = false;
-
-        toggleBtn.addEventListener('click', () => {
-            visible = !visible;
-            toggleContainer.style.display = visible ? 'block' : 'none';
-            toggleBtn.textContent = visible ? 'Ocultar Opções' : 'Mostrar Outras Opções';
-        });
-
-        // Referência ao modal
-        const editModal = document.getElementById('editModal');
-
-        function getHeartStatus() {
-            const now = Date.now();
-            // Fornece valor padrão seguro se estiver ausente ou inválido
-            const lastEarnedRaw = localStorage.getItem('lastHeartEarnedAt');
-            const heartsEarnedTodayRaw = localStorage.getItem('heartsEarnedToday');
-            const heartsDayStartRaw = localStorage.getItem('heartsDayStart');
-
-            const lastEarned = isNaN(parseInt(lastEarnedRaw)) ? 0 : parseInt(lastEarnedRaw);
-            const heartsEarnedToday = isNaN(parseInt(heartsEarnedTodayRaw)) ? 0 : parseInt(heartsEarnedTodayRaw);
-            const heartsDayStart = isNaN(parseInt(heartsDayStartRaw)) ? now : parseInt(heartsDayStartRaw);
-
-            const maxHeartsPerDay = 10;
-            const cooldownMs = 60 * 1000; // 1 minuto testes
-            const resetIntervalMs = 1 * 60 * 60 * 1000; // 1 hora
-
-            const remainingHearts = Math.max(0, maxHeartsPerDay - heartsEarnedToday);
-
-            const timeLeftForNextHeart = Math.max(0, cooldownMs - (now - lastEarned));
-            const timeLeftForReset = Math.max(0, resetIntervalMs - (now - heartsDayStart));
-
-            return {
-                remainingHearts,
-                earnedToday: heartsEarnedToday,
-                canEarnNow: timeLeftForNextHeart <= 0,
-                timeUntilNextHeartMs: timeLeftForNextHeart,
-                timeUntilResetMs: timeLeftForReset
-            };
-        }
-
-        function openHeartModal() {
-            const modal = document.getElementById('heartModal');
-            const contentEl = document.getElementById('heartStatusContent');
-            const status = getHeartStatus();
-
-            let html = `
-                <p>❤️ Corações ganhos: <strong>${status.earnedToday}/10</strong></p>
-                <p>❤️ Restantes: <strong>${status.remainingHearts}</strong></p>
-            `;
-
-            if (status.remainingHearts === 0) {
-                html += `<p>🛑 Você atingiu o limite de 10 corações hoje. Volte amanhã!</p>`;
-            } else if (!status.canEarnNow) {
-                html += `<p>⏳ Próximo coração disponível em <strong>${status.timeUntilNextHeartSec}s</strong>.</p>`;
-            } else {
-                html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
-            }
-
-            contentEl.innerHTML = html;
-            modal.style.display = 'block';
-            updateHeartModalContent(); // Preenche de imediato
-
-            // Atualiza o conteúdo a cada segundo
-            heartInterval = setInterval(updateHeartModalContent, 1000);
-        }
-        //funçao que preenche e atualiza o openHeartModal dinamicamente
-        function updateHeartModalContent() {
-            const contentEl = document.getElementById('heartStatusContent');
-            const status = getHeartStatus();
-
-            const formatTime = (ms) => {
-                if (isNaN(ms) || ms <= 0) return '0m 0s';
-                const totalSec = Math.ceil(ms / 1000);
-                const h = Math.floor(totalSec / 3600);
-                const m = Math.floor((totalSec % 3600) / 60);
-                const s = totalSec % 60;
-                return `${h > 0 ? `${h}h ` : ''}${m}m ${s}s`;
-            };
-
-            let html = `
-            <p>❤️ Corações já ganhos neste reset: <strong>${status.earnedToday}/10</strong></p>
-            <p>❤️ Pode ganhar: <strong>${status.remainingHearts}</strong> no reset atual</p>
-            <p>🕒 Novo reset em: <strong>${formatTime(status.timeUntilResetMs)}</strong></p>
-            `;
-
-            if (!status.canEarnNow) {
-                html += `<p>⏳ Próximo coração disponível em: <strong>${formatTime(status.timeUntilNextHeartMs)}</strong></p>`;
-
-                const progressPercent = Math.floor(100 * (1 - status.timeUntilNextHeartMs / 60000));
-                html += `
-            <div style="margin-top: 10px;">
-                <div style="height: 10px; background: #ddd; border-radius: 5px;">
-                    <div style="height: 10px; width: ${progressPercent}%; background: #4caf50; border-radius: 5px;"></div>
-                </div>
-                <small>${progressPercent}% até o próximo coração</small>
-            </div>
-            `;
-            } else if (status.remainingHearts > 0) {
-                html += `<p>✅ Você já pode ganhar um novo coração!</p>`;
-            }
-
-            // drawHeartTimer(status.timeUntilNextHeartMs, status.timeUntilResetMs);
-
-
-            contentEl.innerHTML = html;
-        }
-        //dicas
-        function showHint() {
-            let correctAnswer;
-            if (!currentQuestion) {
-                console.warn("currentQuestion está indefinido ou null ao tentar usar uma dica.");
-                showFeedbackMessage("⚠️ Nenhuma pergunta ativa no momento.");
-                return;
-            }
-
-            if (currentQuestion.type === 'letters') {
-                correctAnswer = currentQuestion.answer.toLowerCase()
-                    .split('')
-                    .filter(char => char.match(/[a-záàâãéêíóôõúçñü]/i));
-            } else {
-                correctAnswer = currentQuestion.words;
-            }
-
-            const responseLength = correctAnswer.length;
-
-            // Cálculo do limite de dicas
-            let maxHints = 1;
-            if (responseLength >= 4 && responseLength <= 6) {
-                maxHints = 2;
-            } else if (responseLength > 6) {
-                maxHints = 3;
-            }
-
-            console.log(`🧠 Tamanho da resposta: ${responseLength} | Máximo de dicas: ${maxHints} | Já usadas: ${hintsUsedThisQuestion} | Vidas: ${gameStats.lives}`);
-
-            const usandoVida = gameStats.lives > 0;
-
-            // Se já usou todas as dicas
-            //if (hintsUsedThisQuestion >= maxHints) {
-            if (!usandoVida && hintsUsedThisQuestion >= maxHints) {
-                showFeedbackMessage("🚫 Limite de dicas atingido para esta pergunta.");
-                // document.getElementById('hintButton').style.display = 'none';
-                return;
-            }
-
-            // Verifica ordem
-            let ordemCorreta = true;
-            for (let i = 0; i < selectedWords.length; i++) {
-                if (selectedWords[i].toLowerCase() !== correctAnswer[i].toLowerCase()) {
-                    ordemCorreta = false;
-                    break;
-                }
-            }
-
-            if (!ordemCorreta) {
-                showFeedbackMessage("❌ Ordem incorreta! Revise sua resposta.");
-                return;
-            }
-
-            const userAnswer = (currentQuestion.type === 'letters')
-                ? selectedWords.join('').toLowerCase().trim()
-                : selectedWords.join(' ').toLowerCase().trim();
-
-            const correctAnswerStr = (currentQuestion.type === 'letters')
-                ? currentQuestion.answer.toLowerCase().replace(/\s+/g, '').trim()
-                : currentQuestion.answer.toLowerCase().trim();
-
-            if (userAnswer === correctAnswerStr) {
-                showFeedbackMessage("✅ Você já completou a resposta corretamente!");
-                return;
-            }
-
-            const nextIndex = selectedWords.length;
-            const nextExpected = correctAnswer[nextIndex];
-
-            const allWordElements = document.querySelectorAll('#wordBank .word-chip');
-            let found = false;
-
-            for (let element of allWordElements) {
-                const elementText = element.textContent.toLowerCase();
-
-                if (
-                    normalizeText(elementText) === normalizeText(nextExpected) &&
-                    !element.classList.contains('selected')
-                ) {
-                    element.classList.add('hint');
-                    element.style.animation = 'pulse 1s infinite';
-
-                    setTimeout(() => {
-                        element.classList.remove('hint');
-                        element.style.animation = '';
-                    }, 3000);
-
-                    showFeedbackMessage(
-                        `💡 Dica: A próxima ${currentQuestion.type === 'letters' ? 'letra' : 'palavra'} é "${nextExpected.toUpperCase()}"`
-                    );
-
-                    // ✅ Penaliza corretamente
-                    // Sempre conta como uma dica usada
-                    hintsUsedThisQuestion++;
-                    gameStats.hintsUsed++;
-
-                    // Aplica penalidade
-                    if (usandoVida) {
-                        gameStats.lives = Math.max(0, gameStats.lives - 1);//testes 1 = 0 lado direito
-                        dicaFoiComVida = true;
-                        showFeedbackMessage("💡 Você usou 1 vida para receber uma dica.");
-                    } else {
-                        dicaFoiComVida = false;
-                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
-                    }
-                    const hintBtn = document.getElementById('hintButton');
-
-                    // Bloqueia por 10 segundos
-                    hintBtn.disabled = true;
-                    let secondsLeft = 10;//testes
-
-                    hintBtn.textContent = `⏳ ${secondsLeft}s`;
-                    const hintCooldown = setInterval(() => {
-                        secondsLeft--;
-                        if (secondsLeft > 0) {
-                            hintBtn.textContent = `⏳ ${secondsLeft}s`;
+                    const db = await initDB();
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.getAll();
+
+                    request.onsuccess = () => {
+                        if (request.result.length > 0) {
+                            sites = request.result.map(item => ({
+                                name: item.name,
+                                description: item.description,
+                                code: item.code
+                            }));
                         } else {
-                            clearInterval(hintCooldown);
-                            hintBtn.disabled = false;
-                            hintBtn.textContent = '💡';
+                            // Manter o site exemplo existente
+                            sites = [{
+                                name: "Contador de Cliques",
+                                description: "Ferramenta simples para contar cliques",
+                                code: `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Contador de Cliques</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #74b9ff, #0984e3);
+                    color: white;
+                }
+                .container {
+                    text-align: center;
+                    background: rgba(255,255,255,0.1);
+                    padding: 40px;
+                    border-radius: 20px;
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                }
+                .counter {
+                    font-size: 4em;
+                    font-weight: bold;
+                    margin: 20px 0;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                }
+                .btn {
+                    font-size: 1.2em;
+                    padding: 15px 30px;
+                    margin: 10px;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-weight: bold;
+                }
+                .btn-click {
+                    background: #00b894;
+                    color: white;
+                }
+                .btn-reset {
+                    background: #e17055;
+                    color: white;
+                }
+                .btn:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+                }
+            <\/style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🖱️ Contador de Cliques</h1>
+                <div class="counter" id="counter">0</div>
+                <button class="btn btn-click" onclick="incrementCounter()">Clique Aqui!</button>
+                <button class="btn btn-reset" onclick="resetCounter()">Resetar</button>
+            </div>
+            
+            <script>
+                let count = 0;
+                
+                function incrementCounter() {
+                    count++;
+                    document.getElementById('counter').textContent = count;
+                }
+                
+                function resetCounter() {
+                    count = 0;
+                    document.getElementById('counter').textContent = count;
+                }
+            <\/script>
+        </body>
+        </html>`
+                            }];
+                            saveSites(); // Salvar no IndexedDB
                         }
-                    }, 1000);//testes
-
-                    // Atualiza stats primeiro
-                    gameStats.hintsUsed++;
-                    saveStats();
-                    updateStatsDisplay();
-
-                    // 🔄 Só depois anima
-                    if (usandoVida) {
-
-                        // 💓 Vibra o coração
-                        animateHeartShake();
-                    }
-                    else {
-                        dicaFoiComVida = false;
-                        showFeedbackMessage("💡 Você recebeu uma dica gratuita (sem vidas disponíveis).");
-                    }
-
-                    gameStats.hintsUsed++;
-                    saveStats();
-                    updateStatsDisplay();
-
-                    // Oculta apenas se não tiver vidas e acabou as dicas
-                    if (gameStats.lives === 0 && hintsUsedThisQuestion >= maxHints) {
-                        document.getElementById('hintButton').style.display = 'none';
-                    }
-
-                    found = true;
-                    break;
+                        renderSites();
+                    };
+                } catch (error) {
+                    console.error('Erro ao carregar sites:', error);
+                    renderSites();
+                }
+            }
+            // Precarregar recursos críticos
+            function preloadCriticalResources() {
+                if ('serviceWorker' in navigator && 'caches' in window) {
+                    caches.open(CACHE_NAME).then(cache => {
+                        // Precarrega recursos importantes
+                        cache.addAll([
+                            '/',
+                            '/index.html'
+                        ]);
+                    });
                 }
             }
 
-            if (!found) {
-                showFeedbackMessage(`⚠️ A próxima letra/palavra esperada é "${nextExpected}", mas não há botão disponível.`);
+            // Salvar sites no armazenamento indexedb
+            async function saveSites() {
+                try {
+                    const db = await initDB();
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+
+                    // Limpar dados existentes
+                    const clearRequest = store.clear();
+                    clearRequest.onsuccess = () => {
+                        // Adicionar todos os sites em batch
+                        sites.forEach(site => {
+                            store.add(site);
+                        });
+                    };
+                } catch (error) {
+                    console.error('Erro ao salvar sites:', error);
+                }
             }
-        }
-        // Speech Functions
-        function speakText(text, language = 'pt-BR', callback = null) {
-            // Verificar se a fala global está ativada
-            if (!globalSpeechEnabled) {
-                if (callback) callback(); // Chama o callback mesmo se não falar
-                return;
+
+            // Renderizar lista de sites
+            function renderSites() {
+                const grid = document.getElementById('sitesGrid');
+                grid.innerHTML = '';
+                //modificaçao para mostrar os ultimos sites no topo da lista
+                sites.slice().reverse().forEach((site, originalIndex) => {
+                    const index = sites.length - 1 - originalIndex;
+                    const card = document.createElement('div');
+                    card.className = 'site-card';
+                    card.innerHTML = `
+                            <h3>${site.name}</h3>
+                            <p>${site.description || 'Sem descrição'}</p>
+                            <div class="site-actions">
+                                <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
+                                <button class="btn edit-btn" onclick="editSite(${index})">Editar</button>
+                                <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
+                            </div>
+                        `;
+                    grid.appendChild(card);
+                });
+            }
+            //Adicionar funcionalidade de pesquisa
+            function filterSites(searchTerm) {
+                if (!searchTerm.trim()) {
+                    renderSites();
+                    return;
+                }
+
+                const searchWords = searchTerm.trim().split(/\s+/).map(word => normalizeText(word));
+
+                const filteredSites = sites.filter(site => {
+                    const normalizedName = normalizeText(site.name);
+                    const normalizedDesc = site.description ? normalizeText(site.description) : '';
+
+                    if (searchWords.length === 1) {
+                        // Uma palavra: busca em qualquer site que contenha essa palavra
+                        return normalizedName.includes(searchWords[0]) || normalizedDesc.includes(searchWords[0]);
+                    } else {
+                        // Múltiplas palavras: TODAS devem estar no mesmo título OU na mesma descrição
+                        const nameContainsAll = searchWords.every(word => normalizedName.includes(word));
+                        const descContainsAll = searchWords.every(word => normalizedDesc.includes(word));
+
+                        return nameContainsAll || descContainsAll;
+                    }
+                });
+
+                const grid = document.getElementById('sitesGrid');
+                grid.innerHTML = '';
+
+                if (filteredSites.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Nenhum site encontrado</p>';
+                    return;
+                }
+                //modificaçao para mostrar os ultimos sites adicionados ao topo da lista
+                filteredSites.slice().reverse().forEach((site) => {
+                    const originalIndex = sites.indexOf(site);
+                    const card = document.createElement('div');
+                    card.className = 'site-card';
+                    card.innerHTML = `
+                    <h3>${site.name}</h3>
+                    <p>${site.description || 'Sem descrição'}</p>
+                    <div class="site-actions">
+                        <button class="btn btn-primary" onclick="openSite(${originalIndex})">Abrir</button>
+                        <button class="btn edit-btn" onclick="editSite(${originalIndex})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteSite(${originalIndex})">Excluir</button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
             }
 
-            if ('speechSynthesis' in window) {
-                speechQueue++; // Incrementa contador de falas
+            // Abrir site em tela cheia
+            function openSite(index) {
+                currentSiteIndex = index;
+                const site = sites[index];
+                document.getElementById('fullscreenTitle').textContent = site.name;
+                //lazy loading para otimizaçao
+                const iframe = document.getElementById('siteFrame');
+                iframe.srcdoc = '';
+                setTimeout(() => {
+                    iframe.srcdoc = site.code;
+                }, 100);
+                document.getElementById('fullscreenOverlay').style.display = 'block';
+            }
 
-                // Para mobile, precisa ser ativado por interação do usuário
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = language;
-                utterance.rate = 0.8;
-                utterance.volume = 1.0;
+            // Fechar tela cheia
+            function closeFullscreen() {
+                document.getElementById('fullscreenOverlay').style.display = 'none';
+                currentSiteIndex = -1;
+            }
 
-                // Quando terminar de falar
-                utterance.onend = function () {
-                    speechQueue--; // Decrementa contador
-                    if (callback) {
-                        setTimeout(callback, 100); // Pequeno delay para garantir
-                    }
-                };
+            // Abrir modal para adicionar site
+            function openAddSiteModal() {
+                editingIndex = -1;
+                document.getElementById('modalTitle').textContent = 'Adicionar Nova Ferramenta';
+                document.getElementById('siteName').value = '';
+                document.getElementById('siteDescription').value = '';
+                document.getElementById('siteCode').value = '';
+                document.getElementById('siteModal').style.display = 'block';
+            }
 
-                utterance.onerror = function (event) {
-                    speechQueue--; // Decrementa contador mesmo com erro
-                    if (callback) {
-                        setTimeout(callback, 100);
-                    }
-                };
+            // Editar site
+            function editSite(index) {
+                if (index < 0 || index >= sites.length) {
+                    console.error('Índice de site inválido:', index);
+                    return;
+                }
 
-                // Garantir que o speechSynthesis está pronto
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-                    // Aguarda um pouco após cancelar antes de falar novamente
+                editingIndex = index;
+                const site = sites[index];
+                document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
+                document.getElementById('siteName').value = site.name;
+                document.getElementById('siteDescription').value = site.description || '';
+                document.getElementById('siteCode').value = site.code;
+                document.getElementById('siteModal').style.display = 'block';
+            }
+            //função para deletar site
+            function deleteSite(index) {
+                if (index < 0 || index >= sites.length) {
+                    console.error('Índice de site inválido:', index);
+                    return;
+                }
+
+                const site = sites[index];
+                if (confirm(`Tem certeza que deseja excluir "${site.name}"?`)) {
+                    sites.splice(index, 1);
+                    saveSites();
+                    renderSites();
+                }
+            }
+
+            // Editar site atual (quando em tela cheia)
+            function editCurrentSite() {
+                if (currentSiteIndex >= 0 && currentSiteIndex < sites.length) {
+                    const indexToEdit = currentSiteIndex; // Guarda o índice antes de fechar
+                    closeFullscreen();
                     setTimeout(() => {
-                        speechSynthesis.speak(utterance);
+                        editSite(indexToEdit);
                     }, 100);
+                }
+            }
+
+            // Fechar modal
+            function closeSiteModal() {
+                document.getElementById('siteModal').style.display = 'none';
+            }
+
+            // Salvar site (formulário)
+            document.getElementById('siteForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const name = document.getElementById('siteName').value;
+                const description = document.getElementById('siteDescription').value;
+                const code = document.getElementById('siteCode').value;
+
+                const siteData = { name, description, code };
+
+                if (editingIndex >= 0) {
+                    sites[editingIndex] = siteData;
                 } else {
-                    speechSynthesis.speak(utterance);
+                    sites.push(siteData);
                 }
-            } else if (callback) {
-                callback(); // Chama o callback se não suportar fala
-            }
-        }
 
-        function getLanguageCode(language) {
-            const languages = {
-                'português': 'pt-BR',
-                'inglês': 'en-US',
-                'espanhol': 'es-ES',
-                'francês': 'fr-FR',
-                'italiano': 'it-IT'
-            };
-            return languages[language] || 'pt-BR';
-        }
-        //funçao para ativar desativar o modo de syntese global leitura automatica
-        function toggleGlobalSpeech() {
-            globalSpeechEnabled = !globalSpeechEnabled;
+                saveSites();
+                renderSites();
+                closeSiteModal();
+            });
 
-            const btn = document.getElementById('globalSpeechBtn');
-            const status = document.getElementById('speechStatus');
-
-            if (globalSpeechEnabled) {
-                btn.classList.remove('disabled');
-                btn.innerHTML = '🔊 <span id="speechStatus">Falar</span>';
-                status.textContent = 'Fala Ativada';
-            } else {
-                btn.classList.add('disabled');
-                btn.innerHTML = '🔇 <span id="speechStatus">Mudo</span>';
-                status.textContent = 'Fala Desativada';
-
-                // Para qualquer fala que esteja acontecendo
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel();
-
+            // Fechar modal ao clicar fora
+            window.addEventListener('click', function (e) {
+                const modal = document.getElementById('siteModal');
+                if (e.target === modal) {
+                    closeSiteModal();
                 }
-                speechQueue = 0; // Reseta contador quando cancela fala global
+            });
+
+
+            //event listener para funçao de pesquisa
+            // Event listener para pesquisa
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function (e) {
+                const searchTerm = e.target.value;
+                const clearBtn = document.getElementById('clearSearch');
+
+                clearTimeout(searchTimeout);
+
+                if (searchTerm.trim() !== '') {
+                    clearBtn.style.display = 'block';
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+
+                searchTimeout = setTimeout(() => {
+                    filterSites(searchTerm);
+                }, 300);
+            });
+
+            // Event listener para o botão de limpar
+            document.getElementById('clearSearch').addEventListener('click', function () {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('clearSearch').style.display = 'none';
+                renderSites();
+                document.getElementById('searchInput').focus();
+            });
+
+            // Event listener para Enter na pesquisa
+            document.getElementById('searchInput').addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('searchInput').value = '';
+                    document.getElementById('clearSearch').style.display = 'none';
+                    renderSites();
+                }
+            });
+            //funçoes para importar e exportar
+            function exportSites() {
+                const dataStr = JSON.stringify(sites, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = 'meus-sites.json';
+                link.click();
             }
 
-            // Salvar a preferência (opcional)
-            localStorage.setItem('globalSpeechEnabled', globalSpeechEnabled);
-            updateSpeechIndicator();
-        }
-        //funçao para falar a explicaçao
-        function playExplanationAudio() {
-            if (!currentQuestion.explanation) return;
+            function importSites(event) {
+                const file = event.target.files[0];
+                if (!file) return;
 
-            const playBtn = document.getElementById('playExplanationBtn');
-
-            // Desabilita o botão durante a reprodução
-            playBtn.disabled = false;
-            playBtn.innerHTML = '🔄 Reproduzindo...';
-
-            // Para qualquer fala anterior
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-
-            // Fala a explicação
-            setTimeout(() => {
-                speakText(
-                    currentQuestion.explanation,
-                    getLanguageCode(currentQuestion.explanationLanguage || 'português'),
-                    () => {
-                        // Callback quando terminar de falar
-                        playBtn.disabled = false;
-                        playBtn.innerHTML = '🔊 Ouvir Explicação';
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const importedSites = JSON.parse(e.target.result);
+                        if (Array.isArray(importedSites)) {
+                            if (confirm('Isso substituirá todos os seus sites atuais. Deseja continuar?')) {
+                                sites = importedSites;
+                                saveSites();
+                                renderSites();
+                                alert('Sites importados com sucesso!');
+                            }
+                        } else {
+                            alert('Arquivo inválido!');
+                        }
+                    } catch (error) {
+                        alert('Erro ao importar arquivo: ' + error.message);
                     }
-                );
-            }, 100);
-        }
-        //funçoes para modais
-        //funçao para o modal de explicaçao
-        function showExplanation() {
-            if (!currentQuestion || !currentQuestion.explanation) return;
+                };
+                reader.readAsText(file);
+            }
+            function normalizeText(text) {
+                return text.toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            }
 
-            // Se ainda tem vidas, consome 1
-            if (gameStats.lives > 0) {
-                gameStats.lives -= 1;//testes 1 = 0 mude este valor para subtrair algo quando usar este dica
-                hintsUsedThisQuestion++; // marca que usou uma dica
-                updateStatsDisplay();    // atualiza visualmente
-                saveStats();             // salva as vidas/dicas
-                // 💓 Vibra o coração ao usar vida para dica
-                animateHeartShake();
+            // Verifica suporte ao reconhecimento de voz
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'pt-BR'; // Idioma em português
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onresult = function (event) {
+                    const transcript = event.results[0][0].transcript.trim();
+
+                    const searchInput = document.getElementById('searchInput');
+                    const clearBtn = document.getElementById('clearSearch');
+
+                    // Atualiza o campo de busca com o texto falado
+                    searchInput.value = transcript;
+                    clearBtn.style.display = 'block';
+
+                    // Dispara a função de busca
+                    filterSites(transcript);
+                };
+
+                recognition.onerror = function (event) {
+                    console.error('Erro no reconhecimento de voz:', event.error);
+                };
+
+                function startVoiceSearch() {
+                    recognition.start();
+                }
             } else {
-                alert("Você não tem mais vidas para usar uma dica.");
-                return;
-            }
-
-            // Preenche o modal com a explicação
-            document.getElementById('explanationText').textContent = currentQuestion.explanation;
-
-            // Mostra o modal
-            document.getElementById('explanationModal').style.display = 'block';
-
-            // Reproduz a explicação por áudio se ativado
-            if (globalSpeechEnabled) {
-                setTimeout(() => {
-                    playExplanationAudio();
-                }, 500);
-            }
-        }
-
-        // Fecha o modal se clicar fora dele
-        window.onclick = function (event) {
-            const explanationModal = document.getElementById('explanationModal');
-            if (event.target === explanationModal) {
-                closeExplanationModal();
-            }
-        }
-        function closeExplanationModal() {
-            document.getElementById('explanationModal').style.display = 'none';
-
-            // Para o áudio se estiver tocando
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-        }
-
-        function closeHeartModal() {
-            document.getElementById('heartModal').style.display = 'none';
-            clearInterval(heartInterval);
-        }
-        // Adicione esta função para fechar com ESC
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                const explanationModal = document.getElementById('explanationModal');
-                if (explanationModal.style.display === 'block') {
-                    closeExplanationModal();
+                alert('Reconhecimento de voz não suportado neste navegador.');
+                function startVoiceSearch() {
+                    console.log("SpeechRecognition não está disponível.");
                 }
             }
+
+
+
+
+            //service worker para funcionamento offline
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(function (registration) {
+                            console.log('SW registrado com sucesso:', registration.scope);
+
+                            // Verificar atualizações
+                            registration.addEventListener('updatefound', function () {
+                                console.log('Nova versão do SW disponível');
+                            });
+                        })
+                        .catch(function (error) {
+                            console.log('Falha ao registrar SW:', error);
+                        });
+                });
+            }
+            // Detectar status offline/online
+            function updateOnlineStatus() {
+                const indicator = document.getElementById('offlineIndicator');
+                if (navigator.onLine) {
+                    indicator.style.display = 'none';
+                    indicator.textContent = '🌐 Online';
+                } else {
+                    indicator.style.display = 'block';
+                    indicator.textContent = '📱 Modo Offline - Funcionalidade completa disponível';
+                }
+            }
+
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+
+            // Verificar status inicial após carregar
+            window.addEventListener('load', function () {
+                updateOnlineStatus();
+
+                // Teste de conectividade real
+                fetch('./manifest.json', { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        console.log('Conectividade confirmada');
+                    })
+                    .catch(() => {
+                        console.log('Sem conectividade real');
+                        const indicator = document.getElementById('offlineIndicator');
+                        indicator.style.display = 'block';
+                        indicator.textContent = '📱 Modo Offline';
+                    });
+            });
+
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus(); // Verificar status inicial
+            // Teste de funcionalidade offline
+            function testOfflineCapability() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready.then(function () {
+                        console.log('✅ Service Worker ativo - Site pronto para funcionar offline');
+                    });
+                }
+
+                if ('indexedDB' in window) {
+                    console.log('✅ IndexedDB disponível - Dados salvos localmente');
+                }
+
+                console.log('✅ Site funcionará offline após primeira visita');
+            }
+            let inactivityTimer;
+    let hideDelayTimer;
+
+    const micButton = document.querySelector('.search-random-btn');
+    const addButton = document.querySelector('.add-site-btn');
+
+    function showButtons() {
+        [micButton, addButton].forEach(btn => {
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
         });
-        //funçoes reutilizaveis
-        //coraçao vibra quando perde vidas
-        function animateHeartShake() {
-            const heartEl = document.getElementById('statsDisplay');
-            if (!heartEl) return;
+    }
 
-            heartEl.classList.remove('heart-shake'); // Reinicia o efeito se já estiver em uso
-            requestAnimationFrame(() => {
-                heartEl.classList.add('heart-shake');
-                setTimeout(() => {
-                    heartEl.classList.remove('heart-shake');
-                }, 400);
-            });
-        }
-        //pulsa ao ganhar coraçao
-        function animateHeartGain() {
-            const heartEl = document.getElementById('statsDisplay');
-            if (!heartEl) return;
+    function hideButtons() {
+        [micButton, addButton].forEach(btn => {
+            btn.style.opacity = '0';
+            btn.style.pointerEvents = 'none';
+        });
+    }
 
-            heartEl.classList.remove('heart-gain'); // reinicia se estiver animando
-            requestAnimationFrame(() => {
-                heartEl.classList.add('heart-gain');
-                setTimeout(() => {
-                    heartEl.classList.remove('heart-gain');
-                }, 600); // mesma duração da animação CSS
-            });
-        }
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        clearTimeout(hideDelayTimer);
 
-        //funçao reutilizavel para fechar modais clicando fora
-        function setupModalOutsideClick(modalId, closeFunction) {
-            const modal = document.getElementById(modalId);
-            window.addEventListener('click', function (event) {
-                if (event.target === modal) {
-                    closeFunction();
-                }
-            });
-        }
-        // Chama isso ao carregar a página ou ao abrir o modal pela primeira vez
-        setupModalOutsideClick('heartModal', closeHeartModal);
-        setupModalOutsideClick('editModal', closeEditModal);
+        // Aguarda 1s antes de esconder os botões, para permitir cliques
+        hideDelayTimer = setTimeout(hideButtons, 600);
 
+        // Aguarda 2s de inatividade para mostrar os botões novamente
+        inactivityTimer = setTimeout(showButtons, 2500);
+    }
 
-    </script>
+    // Escuta eventos de interação
+    ['touchstart', 'mousemove', 'scroll', 'keydown'].forEach(evt => {
+        document.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    window.addEventListener('load', resetInactivityTimer);
+            
+            // Carregar sites ao iniciar
+            // Mudança: fazer a chamada async
+            (async () => {
+                await loadSites();
+            })();
+            // Executar teste após carregar
+            window.addEventListener('load', testOfflineCapability);
+        </script>
 </body>
 
 </html>
